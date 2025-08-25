@@ -1,6 +1,6 @@
 # DO / BE / FEEL List – Tool for Rapid Feedback on Oral Presentations (RFO)
 
-### Marker（Marker (Teacher)）
+### Marker（Teacher）
 
 | **DO** | **BE** | **FEEL** |
 |--------|--------|-----------|
@@ -13,7 +13,7 @@
 
 ---
 
-### Presenter（Presenter (Student)）
+### Presenter（Student）
 
 | **DO** | **BE** | **FEEL** |
 |--------|--------|-----------|
@@ -24,7 +24,7 @@
 
 ---
 
-### User（General User: Teacher & Student）
+### General User: Teacher & Student
 
 | **DO** | **BE** | **FEEL** |
 |--------|--------|-----------|
