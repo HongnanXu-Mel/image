@@ -9,7 +9,7 @@
 | Quickly add short text notes during scoring | Flexible, able to provide additional comments as needed | Convenient, able to record thoughts and details anytime |
 | Automatically calculate and display total and average scores | Accurate, ensuring correct score calculations | Worry-free, no manual calculations needed, results are trustworthy |
 | Generate structured feedback report with one click | Efficient, able to organize and output feedback quickly | Relaxed, less extra workload; reliable, report is clear and usable |
-| Save and view historical scoring records by student or date | Systematic, able to manage and track student performance in an organized way | Reassured, historical records won't be lost; sense of achievement, able to see students' long-term progress |
+| Save and view historical scoring records by student or date | Systematic, able to manage and track student performance in an organized way | feel relieved, historical records won't be lost; sense of achievement, able to see students' long-term progress |
 
 ---
 
