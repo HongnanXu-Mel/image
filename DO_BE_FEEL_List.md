@@ -1,44 +1,104 @@
 # DO / BE / FEEL List (Based on User Stories Only)
 
-### Marker (Teacher / Assessor)
+## Marker (Teacher / Assessor)
 
-| **DO**                                                                 | **BE**                                           | **FEEL**                                         |
-| ---------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
-| Quickly select or enter a scoring session when a presentation starts   | Efficient, able to immediately start scoring     | Convenient, ready to score without delay         |
-| Use a clear and concise scoring interface to evaluate preset criteria  | Rigorous, making sure all criteria are covered   | Confident, system is complete and reliable       |
-| Quickly add short text notes while scoring                            | Flexible, able to give extra comments anytime    | Convenient, can capture thoughts on the spot     |
-| Automatically calculate and display total and average scores           | Accurate, no manual calculation needed           | Worry-free, results are correct and trustworthy  |
-| Generate structured feedback report with one click                     | Efficient, able to share feedback instantly      | Relaxed, report is clear and useful              |
-| Save and view scoring records by student or date                       | Organized, able to track progress                | Reassured, records won’t be lost                 |
-| Generate PDF feedback reports                                          | Professional, provide formal documentation       | Happy, official report can be shared or stored   |
-| Send reports to students                                               | Responsible, deliver feedback immediately        | Helpful, students get results right away         |
-| Send reports to myself before students                                 | Careful, double-check before sending             | Confident, safe to share after review            |
-| Export class-wide results                                              | Analytical, see the whole class performance      | In control, overview of the group                |
-| Review assessment details before sending                               | Responsible, ensure fairness and accuracy        | Comfortable, confident no errors in feedback     |
-| Create a new subject or project                                        | Organized, structure assessments properly        | Clear, easier to manage                          |
-| Add or import student lists                                            | Careful, include all students                    | Relieved, no one is missed                       |
-| Form groups from the student list                                      | Flexible, support group or individual scoring    | Ready, adapt to different formats                |
-| Set a presentation timer                                               | Fair, equal time for everyone                    | Reassured, time well managed                     |
-| Define assessment criteria and assign weights                          | Flexible, grading fits course needs              | In control, aligned with teaching goals          |
-| Manage multiple markers                                                | Collaborative, support team grading              | Supported, not working alone                     |
+### DO:
 
+* Quickly select or enter a scoring session when a presentation starts
+* Use a clear and concise scoring interface to evaluate preset criteria
+* Quickly add short text notes while scoring
+* Automatically calculate and display total and average scores
+* Generate structured feedback report with one click
+* Save and view scoring records by student or date
+* Generate PDF feedback reports
+* Send reports to students
+* Send reports to myself before students
+* Export class-wide results
+* Review assessment details before sending
+* Create a new subject or project
+* Add or import student lists
+* Form groups from the student list
+* Set a presentation timer
+* Define assessment criteria and assign weights
+* Manage multiple markers
+
+### BE:
+
+* Efficient, able to immediately start scoring
+* Rigorous, making sure all criteria are covered
+* Flexible, able to give extra comments anytime
+* Accurate, no manual calculation needed
+* Efficient, able to share feedback instantly
+* Organized, able to track progress
+* Professional, provide formal documentation
+* Responsible, deliver feedback immediately
+* Careful, double-check before sending
+* Analytical, see the whole class performance
+* Responsible, ensure fairness and accuracy
+* Organized, structure assessments properly
+* Careful, include all students
+* Flexible, support group or individual scoring
+* Fair, equal time for everyone
+* Flexible, grading fits course needs
+* Collaborative, support team grading
+
+### FEEL:
+
+* Convenient, ready to score without delay
+* Confident, system is complete and reliable
+* Convenient, can capture thoughts on the spot
+* Worry-free, results are correct and trustworthy
+* Relaxed, report is clear and useful
+* Reassured, records won't be lost
+* Happy, official report can be shared or stored
+* Helpful, students get results right away
+* Confident, safe to share after review
+* In control, overview of the group
+* Comfortable, confident no errors in feedback
+* Clear, easier to manage
+* Relieved, no one is missed
+* Ready, adapt to different formats
+* Reassured, time well managed
+* In control, aligned with teaching goals
+* Supported, not working alone
 
 ---
 
-### Presenter (Student)
+## Presenter (Student)
 
-| **DO**                                      | **BE**                          | **FEEL**                                  |
-| ------------------------------------------- | ------------------------------- | ----------------------------------------- |
-| Immediately access score and feedback       | Active learner, reflect quickly | Reassured, know performance right away    |
-| View presentation history                   | Goal-oriented, track progress   | Motivated, can see growth over time       |
-| See countdown timer during presentation     | Time-aware, manage pacing       | Safe, won’t run over time                 |
-| Receive real-time visual cues (“30s left”)  | Responsive, adjust on the spot  | Supported, not surprised by time limits   |
+### DO:
 
+* Immediately access score and feedback
+* View presentation history
+* See countdown timer during presentation
+* Receive real-time visual cues ("30s left")
+
+### BE:
+
+* Active learner, reflect quickly
+* Goal-oriented, track progress
+* Time-aware, manage pacing
+* Responsive, adjust on the spot
+
+### FEEL:
+
+* Reassured, know performance right away
+* Motivated, can see growth over time
+* Safe, won't run over time
+* Supported, not surprised by time limits
 
 ---
 
-### General User (Teacher & Student)
+## General User (Teacher & Student)
 
-| **DO**                        | **BE**                           | **FEEL**                                |
-| ----------------------------- | -------------------------------- | --------------------------------------- |
-| Sign up, sign in, and log out | Independent, own account identity | Recognized, not just a guest            |
+### DO:
+
+* Sign up, sign in, and log out
+
+### BE:
+
+* Independent, own account identity
+
+### FEEL:
+
+* Recognized, not just a guest
