@@ -1,63 +1,44 @@
-# DO / BE / FEEL List – Tool for Rapid Feedback on Oral Presentations (RFO)
-
-### Marker（Teacher）
-
-| **DO**                                                       | **BE**                                                       | **FEEL**                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Quickly select or create a scoring session                   | Efficient, able to immediately enter scoring mode at the start of a presentation | Convenient, able to quickly start the scoring process        |
-| Use a clear and concise scoring interface to evaluate preset criteria | Rigorous, ensuring all dimensions are covered                | Feel relieved, feels the system is comprehensive and reliable without missing important criteria |
-| Quickly add short text notes during scoring                  | Flexible, able to provide additional comments as needed      | Convenient, able to record thoughts and details anytime      |
-| Automatically calculate and display total and average scores | Accurate, ensuring correct score calculations                | Worry-free, no manual calculations needed, results are trustworthy |
-| Generate structured feedback report with one click           | Efficient, able to organize and output feedback quickly      | Relaxed, less extra workload; reliable, report is clear and usable |
-| Save and view historical scoring records by student or date  | Systematic, able to manage and track student performance in an organized way | Feel relieved, historical records won't be lost; sense of achievement, able to see students' long-term progress |
-
----
-
-### Presenter（Student）
-
-| **DO**                                                       | **BE**                                                       | **FEEL**                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Immediately view scores and feedback report after presentation | Active learner, able to quickly identify areas for improvement | Reassured, able to immediately receive objective and detailed feedback |
-| Understand evaluation dimensions through a clear and intuitive feedback report | Self-reflective practitioner, able to set improvement goals  | Motivated, clearly sees strengths and weaknesses             |
-| View historical presentation records and feedback to track progress | Confident in the feedback report                             | Continuous progress, with a clear direction and trajectory of growth |
-
-
----
-
-### General User: Teacher & Student
-
-| **DO**                                                | **BE**                                          | **FEEL**                                           |
-| ----------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
-| Register and log in via account system, bind identity | Independent, with personalized account and data | Recognized, identity clear, not an anonymous guest |
-
----
-
-# New DO / BE / FEEL
+# DO / BE / FEEL List (Based on User Stories Only)
 
 ### Marker (Teacher / Assessor)
 
-| **DO**                         | **BE**                                   | **FEEL**                               |
-| ------------------------------ | ---------------------------------------- | -------------------------------------- |
-| Generate PDF reports           | Professional, able to make formal files  | Happy, have official documents to keep |
-| Send reports to students       | Responsible, give feedback right away    | Relaxed, students get results quickly  |
-| Send reports to myself first   | Careful, check before sending            | Confident, no worries about mistakes   |
-| Export class results           | Good at summarizing, see the whole class | In control, know overall performance   |
-| Review details before sending  | Serious, make sure it’s correct          | Safe, no errors shared                 |
-| Create new courses or projects | Organized, set things clearly            | Clear, easier to manage                |
-| Add or import student lists    | Careful, include everyone                | Relieved, no one is missing            |
-| Form groups from student list  | Flexible, support group work             | Ready, adapt to different formats      |
-| Set presentation timers        | Fair, equal time for all                 | Reassured, time is well managed        |
-| Define criteria and weights    | Flexible, fit the course needs           | In control, grading matches teaching   |
-| Manage multiple markers        | Collaborative, support team grading      | Supported, not working alone           |
+| **DO**                                                                 | **BE**                                           | **FEEL**                                         |
+| ---------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
+| Quickly select or enter a scoring session when a presentation starts   | Efficient, able to immediately start scoring     | Convenient, ready to score without delay         |
+| Use a clear and concise scoring interface to evaluate preset criteria  | Rigorous, making sure all criteria are covered   | Confident, system is complete and reliable       |
+| Quickly add short text notes while scoring                            | Flexible, able to give extra comments anytime    | Convenient, can capture thoughts on the spot     |
+| Automatically calculate and display total and average scores           | Accurate, no manual calculation needed           | Worry-free, results are correct and trustworthy  |
+| Generate structured feedback report with one click                     | Efficient, able to share feedback instantly      | Relaxed, report is clear and useful              |
+| Save and view scoring records by student or date                       | Organized, able to track progress                | Reassured, records won’t be lost                 |
+| Generate PDF feedback reports                                          | Professional, provide formal documentation       | Happy, official report can be shared or stored   |
+| Send reports to students                                               | Responsible, deliver feedback immediately        | Helpful, students get results right away         |
+| Send reports to myself before students                                 | Careful, double-check before sending             | Confident, safe to share after review            |
+| Export class-wide results                                              | Analytical, see the whole class performance      | In control, overview of the group                |
+| Review assessment details before sending                               | Responsible, ensure fairness and accuracy        | Comfortable, confident no errors in feedback     |
+| Create a new subject or project                                        | Organized, structure assessments properly        | Clear, easier to manage                          |
+| Add or import student lists                                            | Careful, include all students                    | Relieved, no one is missed                       |
+| Form groups from the student list                                      | Flexible, support group or individual scoring    | Ready, adapt to different formats                |
+| Set a presentation timer                                               | Fair, equal time for everyone                    | Reassured, time well managed                     |
+| Define assessment criteria and assign weights                          | Flexible, grading fits course needs              | In control, aligned with teaching goals          |
+| Manage multiple markers                                                | Collaborative, support team grading              | Supported, not working alone                     |
 
 
 ---
 
 ### Presenter (Student)
 
-| **DO**                                           | **BE**                          | **FEEL**                                 |
-| ------------------------------------------------ | ------------------------------- | ---------------------------------------- |
-| See score and feedback right after presentation  | Active learner, improve quickly | Reassured, know strengths and weaknesses |
-| View past presentation records                   | Goal-oriented, track growth     | Motivated, can see clear progress        |
-| See countdown timer                              | Time-aware, manage pace         | Safe, won’t go overtime                  |
-| Receive real-time cues (e.g., “30 seconds left”) | Responsive, adjust quickly      | Supported, not caught off guard          |
+| **DO**                                      | **BE**                          | **FEEL**                                  |
+| ------------------------------------------- | ------------------------------- | ----------------------------------------- |
+| Immediately access score and feedback       | Active learner, reflect quickly | Reassured, know performance right away    |
+| View presentation history                   | Goal-oriented, track progress   | Motivated, can see growth over time       |
+| See countdown timer during presentation     | Time-aware, manage pacing       | Safe, won’t run over time                 |
+| Receive real-time visual cues (“30s left”)  | Responsive, adjust on the spot  | Supported, not surprised by time limits   |
+
+
+---
+
+### General User (Teacher & Student)
+
+| **DO**                        | **BE**                           | **FEEL**                                |
+| ----------------------------- | -------------------------------- | --------------------------------------- |
+| Sign up, sign in, and log out | Independent, own account identity | Recognized, not just a guest            |
