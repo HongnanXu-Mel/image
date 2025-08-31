@@ -86,6 +86,3 @@
 * Motivated, can see growth over time
 * Safe, won't run over time
 * Supported, not surprised by time limits
-
----
-
