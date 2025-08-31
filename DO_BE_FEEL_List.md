@@ -89,16 +89,3 @@
 
 ---
 
-## General User (Teacher & Student)
-
-### DO:
-
-* Sign up, sign in, and log out
-
-### BE:
-
-* Independent, own account identity
-
-### FEEL:
-
-* Recognized, not just a guest
