@@ -1,32 +1,44 @@
-# DO / BE / FEEL List – Tool for Rapid Feedback on Oral Presentations (RFO)
+# DO / BE / FEEL List – Updated Based on User Stories  
 
-### Marker（评分者/教师）
+### Marker（Teacher / Assessor）
 
-| **DO** | **BE** | **FEEL** |
-|--------|--------|-----------|
-| 快速选择或创建评分会话 | 高效，能在演讲开始时立即进入评分状态 | 方便，能够迅速进入打分流程 |
-| 使用清晰简洁的评分界面对预设标准打分 | 严谨，确保所有维度都能被覆盖 | 踏实，觉得系统全面可靠，不会漏掉重要标准 |
-| 在打分时快速添加简短文字备注 | 灵活，能根据需要即时补充说明 | 方便，能随时记录想法和细节 |
-| 自动计算并显示总分与平均分 | 准确，保证分数统计无误 | 省心，不必手动计算，结果可信 |
-| 一键生成结构化反馈报告 | 高效，能够在短时间内完成反馈整理与输出 | 轻松，减少额外工作量；可靠，报告结构清晰可用 |
-| 保存并按学生或日期查看历史评分记录 | 系统化，能有条理地管理和追踪学生表现 | 安心，历史记录不会丢失；成就感，能看到学生的长期进步 |
+| **DO**                                                       | **BE**                                                       | **FEEL**                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Quickly select or enter a scoring session when a presentation starts | Efficient, able to immediately enter scoring mode            | Convenient, ready to score without delay                     |
+| Use a clear and concise scoring interface to evaluate preset criteria | Rigorous, ensuring all dimensions are covered                | Confident, feels the system is comprehensive and reliable    |
+| Quickly add short text notes while scoring                   | Flexible, able to provide additional comments                | Convenient, able to capture reasons anytime                  |
+| Automatically calculate and display total and average scores | Accurate, ensuring correct score calculations                | Worry-free, results are trustworthy                          |
+| Generate structured feedback report with one click           | Efficient, able to provide feedback instantly                | Relaxed, less workload; reliable, feedback is useful and presentable |
+| Save and view scoring records by student or date             | Systematic, able to track and compare performance            | Reassured, progress won’t be lost; satisfied seeing long-term growth |
+| Generate PDF reports                                         | Professional, providing formal documentation                 | Proud, feels output is official and reliable                 |
+| Send reports to students via email                           | Responsive, ensuring immediate delivery of feedback          | Helpful, knowing students benefit immediately                |
+| Send reports to self first before students                   | Careful, able to verify accuracy before release              | Confident, assured about correctness before sharing          |
+| Export class-wide assessment results                         | Analytical, able to review overall class performance         | In control, can see the big picture                          |
+| Review assessment details before sending                     | Responsible, ensuring fairness and accuracy                  | Comfortable, confident no mistakes will be shared            |
+| Create new subjects and projects                             | Organized, structuring assessments properly                  | Empowered, able to tailor assessments to context             |
+| Add or import student lists                                  | Inclusive, making sure all students are covered              | Relieved, no student is missed                               |
+| Form groups from student list                                | Adaptive, able to support both individual and group presentations | Flexible, prepared for different modes                       |
+| Set presentation timers                                      | Fair, ensuring equal time for everyone                       | Assured, confident in time management                        |
+| Define criteria and assign weights                           | Customizable, tailoring grading to requirements              | In control, feels system matches course goals                |
+| Manage markers                                               | Collaborative, supporting multiple assessors                 | Supported, not alone in evaluation                           |
+
 
 ---
 
-### Presenter（演讲者/学生）
+### Presenter（Student）
 
-| **DO** | **BE** | **FEEL** |
-|--------|--------|-----------|
-| 演讲结束后立即查看评分与反馈报告 | 积极的学习者，能快速找到改进方向 | 安心，能立即得到客观而详细的反馈 |
-| 通过清晰直观的反馈报告了解各评价维度 | 自主反思的实践者，能制定改进目标 | 有动力，清楚看到优势和弱点 |
-| 查看历史演讲记录与反馈，跟踪进步 | 对反馈报告有信心 | 持续进步，有成长的方向和轨迹 |
-
+| **DO**                                                   | **BE**                                   | **FEEL**                                                     |
+| -------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
+| Immediately access score and feedback after presentation | Active learner, reflective               | Reassured, receives objective and detailed feedback immediately |
+| View history of scores and feedback                      | Self-aware, growth-oriented              | Motivated, sees trajectory and progress clearly              |
+| See countdown timer during presentation                  | Time-conscious, managing own performance | Secure, confident in pacing                                  |
+| Receive real-time cues (e.g., “30 seconds left”)         | Responsive, able to adjust on the spot   | Supported, not caught off-guard                              |
 
 ---
 
-### User（通用用户：教师 & 学生）
+### General User (Teacher & Student)
 
-| **DO** | **BE** | **FEEL** |
-|--------|--------|-----------|
-| 通过账号系统注册和登录，绑定身份 | 独立，拥有个性化账户和数据 | 被认可，身份明确，不是匿名客人 |
-
+| **DO**                                 | **BE**                                           | **FEEL**                                        |
+| -------------------------------------- | ------------------------------------------------ | ----------------------------------------------- |
+| Register and log in via account system | Independent, with personalized identity and data | Recognized, identity is clear, not just a guest |
+| Log out when session not needed        | Secure, in control of own access                 | Safe, confident about privacy                   |
