@@ -1,6 +1,6 @@
-# DO / BE / FEEL List (Based on User Stories Only)
+# DO / BE / FEEL List
 
-## Marker (Teacher / Assessor)
+## Marker
 
 ### DO:
 
@@ -64,7 +64,7 @@
 
 ---
 
-## Presenter (Student)
+## Presenter
 
 ### DO:
 
