@@ -1,88 +1,97 @@
-# DO / BE / FEEL List
+看了用户故事后，我来重新生成一个更准确的做/成为/感受清单：
 
-## Marker
+# 做/成为/感受清单 – 口头报告快速反馈工具 (RFO)
 
-### DO:
+## 管理员
 
-* Quickly select or enter a scoring session when a presentation starts
-* Use a clear and concise scoring interface to evaluate preset criteria
-* Quickly add short text notes while scoring
-* Automatically calculate and display total and average scores
-* Generate structured feedback report with one click
-* Save and view scoring records by student or date
-* Generate PDF feedback reports
-* Send reports to students
-* Send reports to myself before students
-* Export class-wide results
-* Review assessment details before sending
-* Create a new subject or project
-* Add or import student lists
-* Form groups from the student list
-* Set a presentation timer
-* Define assessment criteria and assign weights
-* Manage multiple markers
+### 做什么 (DO)：
+**实时评估功能：**
+* 在演讲者开始报告时快速选择或输入对应的评分会话
+* 通过结构化界面为每个评分标准分配1-5分或等级评分
+* 在评分特定标准时添加简短文字备注
+* 查看系统自动计算的总分和平均分
+* 演讲结束后一键生成包含各项评分和备注的反馈报告
+* 按演讲者或日期查看历史评分记录，追踪进展
+* 从预定义评语列表中选择模板快速评论
 
-### BE:
+**系统管理功能：**
+* 创建新学科和项目，添加详细描述
+* 导入或手动添加学生名单
+* 将学生组成小组或团队
+* 为演讲设置自定义时长的计时器
+* 定义评分标准(rubric)并分配权重
+* 为项目管理和分配多个评估员
 
-* Efficient, able to immediately start scoring
-* Rigorous, making sure all criteria are covered
-* Flexible, able to give extra comments anytime
-* Accurate, no manual calculation needed
-* Efficient, able to share feedback instantly
-* Organized, able to track progress
-* Professional, provide formal documentation
-* Responsible, deliver feedback immediately
-* Careful, double-check before sending
-* Analytical, see the whole class performance
-* Responsible, ensure fairness and accuracy
-* Organized, structure assessments properly
-* Careful, include all students
-* Flexible, support group or individual scoring
-* Fair, equal time for everyone
-* Flexible, grading fits course needs
-* Collaborative, support team grading
+**报告管理功能：**
+* 生成包含分数和评语的PDF反馈报告
+* 通过邮件直接向学生发送报告
+* 先将报告发送给自己进行验证
+* 导出全班评估结果进行分析
+* 发送前审核评估详情确保准确性
 
-### FEEL:
+### 成为什么 (BE)：
+* 有准备的 - 能在演讲开始时立即进入评分状态
+* 专注的 - 能在听演讲的同时轻松评分
+* 细致的 - 能记录具体观察和反馈要点
+* 高效的 - 能快速生成和分发反馈
+* 有组织的 - 能系统管理课程、项目和评估
+* 公平的 - 通过标准化评分确保一致性
+* 分析型的 - 能追踪和分析学生表现趋势
 
-* Convenient, ready to score without delay
-* Confident, system is complete and reliable
-* Convenient, can capture thoughts on the spot
-* Worry-free, results are correct and trustworthy
-* Relaxed, report is clear and useful
-* Reassured, records won't be lost
-* Happy, official report can be shared or stored
-* Helpful, students get results right away
-* Confident, safe to share after review
-* In control, overview of the group
-* Comfortable, confident no errors in feedback
-* Clear, easier to manage
-* Relieved, no one is missed
-* Ready, adapt to different formats
-* Reassured, time well managed
-* In control, aligned with teaching goals
-* Supported, not working alone
+### 感受到什么 (FEEL)：
+* 掌控感 - 对整个评估流程有完全控制
+* 自信 - 相信评分的准确性和一致性
+* 轻松 - 不用担心手动计算或遗漏细节
+* 满意 - 能即时提供有价值的反馈
+* 专业 - 提供正式、结构化的评估文档
 
----
+## 导师
 
-## Presenter
+### 做什么 (DO)：
+**评估功能：**
+* 演讲开始时快速进入评分会话
+* 使用清晰的界面为各项标准评分
+* 在评分时记录具体观察备注
+* 查看自动计算的分数汇总
+* 生成并查看即时反馈报告
+* 查看学生的历史表现记录
+* 使用预定义评语快速提供反馈
 
-### DO:
+**账户功能：**
+* 使用个人账户登录系统
+* 完成工作后登出
 
-* Immediately access score and feedback
-* View presentation history
-* See countdown timer during presentation
-* Receive real-time visual cues ("30s left")
+### 成为什么 (BE)：
+* 专注的 - 能同时听演讲和评分
+* 建设性的 - 提供有助于改进的具体反馈
+* 一致的 - 对所有学生使用相同标准
+* 及时的 - 立即提供反馈
+* 追踪型的 - 监控学生长期进展
 
-### BE:
+### 感受到什么 (FEEL)：
+* 准备就绪 - 有合适的工具进行评估
+* 有效率 - 评分过程流畅不中断
+* 有帮助的 - 能提供有价值的即时反馈
+* 客观 - 通过结构化标准保持公正
 
-* Active learner, reflect quickly
-* Goal-oriented, track progress
-* Time-aware, manage pacing
-* Responsive, adjust on the spot
+## 演讲者
 
-### FEEL:
+### 做什么 (DO)：
+* 演讲后立即在系统中查看分数和反馈报告
+* 查看所有演讲的历史分数和反馈记录
+* 演讲时关注倒计时器管理时间
+* 根据视觉提示（如"还剩30秒"）调整节奏
+* 登录个人账户查看反馈
 
-* Reassured, know performance right away
-* Motivated, can see growth over time
-* Safe, won't run over time
-* Supported, not surprised by time limits
+### 成为什么 (BE)：
+* 接受反馈的 - 愿意接收和学习反馈
+* 自我改进的 - 利用反馈持续提升
+* 时间敏感的 - 有效管理演讲时间
+* 反思型的 - 回顾历史表现寻找改进模式
+
+### 感受到什么 (FEEL)：
+* 被重视 - 立即获得详细反馈
+* 清晰 - 明确了解表现和改进方向
+* 有进步感 - 能看到随时间的成长轨迹
+* 受支持 - 通过具体反馈得到指导
+* 有准备 - 时间提示帮助更好地控制演讲
