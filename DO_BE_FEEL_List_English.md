@@ -2,89 +2,92 @@
 
 **DO**
 
-- Log in/out with a personal account
+- Log in / log out with a personal account
 - Create new subjects and projects
 - Add or import student lists and form groups
 - Set customizable presentation timers
 - Define rubrics and assign weights
 - Manage multiple assessors
-- Access scoring sessions, use structured interfaces, add notes, select predefined comments, rely on auto-calculation, and generate structured feedback
+- Quickly select or enter the correct scoring session when a presentation starts
+- Use a clear, structured scoring interface showing predefined criteria and score options
+- Add short text notes during scoring
+- Select from predefined comment templates for faster feedback
+- Automatically calculate and display total and average scores
+- Generate a structured feedback report with one click (in-system)
 - Save and view scoring records by student or date
-- Generate PDF feedback reports
-- Send reports to self first, then to students
-- Export class-wide results
+- Generate PDF feedback reports (formal export)
+- Send reports to self first, then to students (email/send control)
+- Export class-wide results for analysis
 - Review assessment details before sending
 
 **BE**
 
-- Organized: able to structure courses, projects, and student groups
-- Fair and rigorous: ensure equal timing and complete rubric coverage
-- Collaborative: manage and coordinate multiple assessors
-- Accountable: review before sending, keep records, analyze results
-- Secure: control access with login and role-based permissions
+- Organized: can structure courses, projects and groups clearly
+- Fair and rigorous: ensure consistent timing and full coverage of rubric items
+- Collaborative: coordinate multiple assessors and shared workflows
+- Accountable: review and keep records before distribution
+- Secure: role-based access and login control
 
 **FEEL**
 
-- In control: oversee the whole assessment process
-- Reassured: timers, weights, and results are consistent and reliable
-- Efficient: save time with predefined comments and auto-calculation
-- Professional: produce formal documentation and review before sending
-- Comprehensive: see overall class performance clearly
-
-------
+- In control of the whole assessment process
+- Reassured that timing, weights and results are consistent and traceable
+- Efficient thanks to templates and automatic calculation
+- Professional — able to produce formal, reviewable reports
+- Confident about overall class performance visibility
 
 # Tutor / Marker
 
 **DO**
 
-- Log in/out to access the scoring environment
-- Quickly access the correct scoring session when presentations start
-- Use a clear and structured scoring interface
-- Add short notes during scoring
-- Select from predefined comment templates
-- Automatically calculate total and average scores
-- Generate structured feedback
-- Save and review scoring records by student or date
+- Log in / log out to access the scoring environment
+- Quickly select or enter the correct scoring session when a presentation starts
+- Use a clear, structured scoring interface showing predefined criteria and score options
+- Add short text notes during scoring
+- Select from predefined comment templates for faster grading
+- Automatically calculate and display total and average scores
+- Generate a structured feedback report with one click (in-system)
+- Save and view scoring records by student or date
+
+**(Note:** PDF generation, bulk export and email-sending controls are handled by Administrator.**)**
 
 **BE**
 
-- Efficient: able to score without delay
-- Rigorous: cover all required evaluation criteria
-- Flexible: add notes or use templates anytime
-- Accurate: rely on system calculations, avoid manual errors
-- Collaborative: align with administrators and other markers
+- Efficient: ready to start and score with minimal friction
+- Rigorous: cover all required evaluation criteria consistently
+- Flexible: mix quick templates with free-text comments as needed
+- Accurate: rely on system calculations to avoid manual errors
+- Collaborative: align scoring with admin configuration and other markers
 
 **FEEL**
 
-- Convenient: ready to score without interruptions
-- Confident: criteria are complete and calculations reliable
-- Relaxed: faster with predefined comments and structured reports
-- Reassured: past records are always available for review
-
-------
+- Comfortable and ready to score without interruption
+- Confident that calculations and criteria are correct
+- Relieved by time-savers like templates and auto-calculation
+- Reassured by stored records for later review
 
 # Presenter
 
 **DO**
 
-- Log in to securely access personal records
-- Immediately access own score and feedback after presentations
+- Log in to securely access personal feedback and history
+- Immediately access own score and structured feedback after a presentation
 - View history of scores and feedback across past presentations
 - See a countdown timer during presentations
 - Receive real-time pacing cues (e.g., “30 seconds left”)
 
 **BE**
 
-- Reflective: use feedback to improve quickly
-- Goal-oriented: track progress over time
-- Time-aware: manage pacing during presentations
+- Reflective: use immediate feedback to guide improvement
+- Goal-oriented: track progress across presentations
+- Time-aware: manage pacing and delivery during the presentation
 - Responsive: adjust delivery based on live cues
 - Responsible: keep personal records secure
 
 **FEEL**
 
-- Reassured: results are available immediately
-- Motivated: progress over time is visible
-- Safe: won’t run over time thanks to timers and cues
-- Supported: reminders and feedback are given at the right time
-- Confident: personal records are securely stored
+- Reassured that performance and feedback are available right away
+- Motivated by visible progress over time
+- Safe that timing will be enforced and signalled
+- Supported by timely prompts and clear feedback
+- Confident that personal records are stored securely
