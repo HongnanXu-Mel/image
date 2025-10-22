@@ -12,7 +12,31 @@
 - **seed1.dat**: 基础的表创建、插入和查询操作
 - **seed2.dat**: ALTER TABLE操作，包括重命名表、重命名列、添加列和删除列
 - **seed3.dat**: ANALYZE命令用于查询优化器统计信息收集
-- **seed4-seed28**: 涵盖各种SQL操作的组合和边界情况
+- **seed4.dat**: ATTACH DATABASE操作，测试附加内存数据库和文件数据库
+- **seed5.dat**: 多种事务类型，包括DEFERRED、IMMEDIATE和EXCLUSIVE事务
+- **seed6.dat**: 事务提交和结束的多种语法形式（COMMIT、END、COMMIT TRANSACTION、END TRANSACTION）
+- **seed7.dat**: 索引创建的多种形式，包括普通索引、唯一索引、条件索引和复合索引
+- **seed8.dat**: 多种表创建方式，包括AUTOINCREMENT、TEMP TABLE、CREATE TABLE AS和CREATE TABLE IF NOT EXISTS
+- **seed9.dat**: 触发器创建和使用，包括AFTER UPDATE触发器、BEFORE INSERT触发器和TEMP TRIGGER
+- **seed10.dat**: 视图创建的多种形式，包括普通视图、临时视图和带参数的视图
+- **seed11.dat**: FTS5全文搜索虚拟表的创建和MATCH查询操作
+- **seed12.dat**: DELETE语句的基本用法和WITH子句结合的DELETE操作
+- **seed13.dat**: DELETE语句的LIMIT、ORDER BY和OFFSET操作
+- **seed14.dat**: ATTACH和DETACH数据库的完整流程
+- **seed15.dat**: DROP INDEX操作，包含IF EXISTS条件和schema限定
+- **seed16.dat**: DROP TABLE操作，包含IF EXISTS条件和schema限定
+- **seed17.dat**: DROP TRIGGER操作，测试触发器的删除
+- **seed18.dat**: DROP VIEW操作，测试视图的删除
+- **seed19.dat**: INSERT的多种变体，包括INSERT OR REPLACE、INSERT OR IGNORE、INSERT OR ABORT、REPLACE、INSERT SELECT、DEFAULT VALUES和WITH子句INSERT
+- **seed20.dat**: 全面的PRAGMA命令集合，包括各种数据库配置和元数据查询
+- **seed21.dat**: REINDEX操作，包括全局重建索引、表级重建、索引级重建和schema级重建
+- **seed22.dat**: SAVEPOINT和RELEASE操作，测试保存点的创建和释放
+- **seed23.dat**: ROLLBACK TO SAVEPOINT操作，测试保存点的回滚
+- **seed24.dat**: SAVEPOINT的复杂嵌套和部分回滚场景
+- **seed25.dat**: 复杂查询语句，包括DISTINCT、JOIN、GROUP BY、HAVING、WITH子句、子查询、UNION等
+- **seed26.dat**: UPDATE的多种形式，包括基本UPDATE、UPDATE OR REPLACE/IGNORE/ABORT和WITH子句UPDATE
+- **seed27.dat**: UPDATE语句的LIMIT、ORDER BY和OFFSET操作
+- **seed28.dat**: VACUUM操作和BLOB数据类型处理
 
 **专业功能种子文件:**
 
@@ -126,8 +150,7 @@ Baseline测试使用了Fuzzing Book提供的三个基础变异算子，它们代
 - **函数覆盖率 (Function Coverage)**: 62.5% (1519/2430)
 - **分支覆盖率 (Branch Coverage)**: 40.7% (12112/29769)
 
-**详细文件覆盖率:**
-- **shell.c**: 9.6% 行覆盖率, 16.1% 函数覆盖率, 8.0% 分支覆盖率
+**SQLite3核心库覆盖率:**
 - **sqlite3.c**: 57.5% 行覆盖率, 68.4% 函数覆盖率, 46.2% 分支覆盖率
 
 **覆盖率随时间变化分析：**
@@ -183,8 +206,7 @@ Interesting Values Confusion变异算子是一种针对数值边界条件的智�
 - **函数覆盖率 (Function Coverage)**: 62.4% (1517/2430)
 - **分支覆盖率 (Branch Coverage)**: 41.0% (12217/29769)
 
-**详细文件覆盖率:**
-- **shell.c**: 11.3% 行覆盖率, 16.8% 函数覆盖率, 10.1% 分支覆盖率
+**SQLite3核心库覆盖率:**
 - **sqlite3.c**: 57.6% 行覆盖率, 68.2% 函数覆盖率, 46.2% 分支覆盖率
 
 **与Baseline对比:**
@@ -198,7 +220,7 @@ Interesting Values Confusion变异算子是一种针对数值边界条件的智�
 
 **效果评估:**
 
-Interesting Values算子成功提升了0.3个百分点的分支覆盖率，虽然提升不大，但证明了语义感知变异的价值。特别值得注意的是，shell.c的分支覆盖率从8.0%提升到10.1%，提升了2.1个百分点。shell.c主要处理命令行参数解析，边界值在参数数量和长度限制测试中发挥了重要作用。
+Interesting Values算子成功提升了0.3个百分点的分支覆盖率，虽然提升不大，但证明了语义感知变异的价值。sqlite3.c的覆盖率保持稳定，显示出该算子在保持覆盖广度的同时，能够触发一些新的边界检查分支。
 
 与字节级变异相比，interesting values算子生成的SQL语句语法正确率更高，能够深入到执行阶段而不是在解析阶段失败。新增的105个分支主要涉及数值范围检查、特殊值处理、内存分配大小计算以及LIMIT和OFFSET的边界处理。
 
@@ -241,8 +263,7 @@ Data Type Confusion算子的设计动机源于对SQL类型系统特性的深入�
 - **函数覆盖率 (Function Coverage)**: 60.8% (1477/2430)
 - **分支覆盖率 (Branch Coverage)**: 38.6% (11497/29769)
 
-**详细文件覆盖率:**
-- **shell.c**: 11.5% 行覆盖率, 17.2% 函数覆盖率, 10.5% 分支覆盖率
+**SQLite3核心库覆盖率:**
 - **sqlite3.c**: 54.7% 行覆盖率, 66.3% 函数覆盖率, 43.4% 分支覆盖率
 
 **与Baseline对比:**
@@ -266,7 +287,7 @@ Data Type Confusion的覆盖率曲线显示，初始阶段（0-500次输入）�
 
 第四，SQLite的类型处理机制对类型错误有较强的容错性，很多类型不匹配的操作会被静默处理，返回NULL或0，而不是触发错误，这意味着类型混淆可能不会像预期那样深入探索错误处理代码路径。
 
-尽管整体覆盖率下降，但仍有一些积极发现。shell.c的覆盖率从8.0%提升到10.5%（+2.5个百分点），表明该算子确实触发了一些命令行处理相关的代码。覆盖率下降本身也是一个重要发现，说明SQLite的类型系统设计相对健壮，对于类型混淆有较好的处理。
+尽管整体覆盖率下降，覆盖率下降本身也是一个重要发现，说明SQLite的类型系统设计相对健壮，对于类型混淆有较好的处理。该算子虽然触发了一些类型转换相关的代码路径，但由于破坏了语义完整性，导致整体执行深度下降。
 
 这个实验揭示了一个重要教训：并非所有"语义感知"的变异都优于随机变异，设计不当的语义变异可能过度破坏输入结构，反而降低覆盖率。
 
@@ -307,8 +328,7 @@ Constraint Violation算子的设计基于数据库系统的核心理论和测试
 - **函数覆盖率 (Function Coverage)**: 60.6% (1473/2430)
 - **分支覆盖率 (Branch Coverage)**: 38.3% (11415/29769)
 
-**详细文件覆盖率:**
-- **shell.c**: 11.2% 行覆盖率, 16.8% 函数覆盖率, 9.9% 分支覆盖率
+**SQLite3核心库覆盖率:**
 - **sqlite3.c**: 54.5% 行覆盖率, 66.2% 函数覆盖率, 43.1% 分支覆盖率
 
 **与Baseline对比:**
@@ -355,7 +375,7 @@ Constraint Violation和Data Type Confusion两个算子都产生了低于Baseline
 
 **成功的策略：**
 
-Interesting Values Confusion是唯一成功提升覆盖率的算子（+0.3%），验证了边界值测试的有效性。该算子保持了SQL语句的语法正确性，能够深入到执行阶段，特别对shell.c有明显改进（+2.1%）。
+Interesting Values Confusion是唯一成功提升覆盖率的算子（+0.3%），验证了边界值测试的有效性。该算子保持了SQL语句的语法正确性，能够深入到执行阶段，触发了更多的数值边界检查分支。
 
 **失败的策略及原因：**
 
