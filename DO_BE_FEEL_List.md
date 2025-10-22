@@ -1,9 +1,5 @@
 # SWEN90006 Assignment 2: Fuzzing SQLite
 
-## Acknowledgement
-
-This assignment is based on [an interactive exercise](https://jzamudio.com/sql-grammar-based-fuzzer/), presented to the audience at [the Fuzzing and Software Security Summer School](https://fuzzing.comp.nus.edu.sg/), and on [the Fuzzing Book](https://www.fuzzingbook.org/).
-
 ## Overview
 
 [SQLite](https://sqlite.org/) is a lightweight, serverless database engine that provides a self-contained, file-based solution for storing and managing data with minimal setup. SQLite is arguably (and surprisingly?) the most widely used database engine, with billions of instances across various platforms. It is integrated into nearly every Android and iOS device, as well as most Mac and Windows 10 systems, and is present in major web browsers like Firefox, Chrome, and Safari. Additionally, SQLite is used in numerous applications and devices, including Skype, iTunes, Dropbox, TurboTax, QuickBooks, television sets, automotive systems, and many others. To learn more about how SQLite works, please watch this [introductory video](https://youtu.be/jH39c5-y6kg).
