@@ -365,29 +365,32 @@ The GCC code coverage report generated at 2025-10-22 04:32:21 shows the cumulati
 
 Our approach to designing mutation operators was guided by three key principles:
 
-1. **Domain-Specific vs. General-Purpose Mutations:** We implemented both SQL-specific operators (`mutate_data_type_confusion`, `mutate_constraint_violation`) and general-purpose operators (`mutate_interesting_values`) to compare their effectiveness.
+**Domain-Specific vs. General-Purpose Mutations**
+We implemented both SQL-specific operators (`mutate_data_type_confusion`, `mutate_constraint_violation`) and general-purpose operators (`mutate_interesting_values`) to compare their effectiveness.
 
-2. **Complementary Coverage:** Each operator targets different aspects of SQLite testing:
-   - **Character-level mutations** (delete, insert, flip): Target syntax errors and malformed inputs
-   - **Interesting values mutation**: Explores boundary conditions and edge cases
-   - **Data type confusion**: Tests SQLite's type handling robustness
-   - **Constraint violation**: Tests SQLite's constraint enforcement mechanisms
+**Complementary Coverage Strategy**
+Each operator targets different aspects of SQLite testing:
+- **Character-level mutations** (delete, insert, flip): Target syntax errors and malformed inputs
+- **Interesting values mutation**: Explores boundary conditions and edge cases
+- **Data type confusion**: Tests SQLite's type handling robustness
+- **Constraint violation**: Tests SQLite's constraint enforcement mechanisms
 
-3. **Systematic Evaluation:** We tested each operator combination individually to isolate their individual contributions to coverage improvement.
+**Systematic Evaluation Approach**
+We tested each operator combination individually to isolate their individual contributions to coverage improvement.
 
 ### 2.16.2 Implementation Rationale
 
-**mutate_interesting_values:**
+**mutate_interesting_values**
 - **Rationale:** SQLite, like many database systems, has specific handling for boundary values (0, -1, INT_MAX, etc.)
 - **Implementation:** Replaces numeric literals with predefined interesting values that commonly trigger edge cases
 - **Expected Impact:** Should improve branch coverage by exploring conditional logic paths
 
-**mutate_data_type_confusion:**
+**mutate_data_type_confusion**
 - **Rationale:** SQLite's flexible type system can lead to unexpected behavior when data types are confused
 - **Implementation:** Systematically replaces INTEGER with TEXT, REAL with INTEGER, and TEXT with BLOB
 - **Expected Impact:** Should discover type-related bugs and improve coverage of type conversion code paths
 
-**mutate_constraint_violation:**
+**mutate_constraint_violation**
 - **Rationale:** SQL constraints (NOT NULL, UNIQUE, PRIMARY KEY) are critical for data integrity
 - **Implementation:** Removes constraints and inserts duplicate values to test constraint enforcement
 - **Expected Impact:** Should improve coverage of constraint checking and error handling code
@@ -396,33 +399,42 @@ Our approach to designing mutation operators was guided by three key principles:
 
 Our experimental methodology followed a systematic approach:
 
-1. **Baseline Establishment:** First measured coverage using only seed inputs
-2. **Individual Operator Testing:** Tested each new operator with basic character-level mutations
-3. **Comparative Analysis:** Compared all strategies using identical experimental parameters (10,000 inputs, 100-interval measurements)
-4. **Statistical Validation:** Ensured consistent experimental conditions across all trials
+**Baseline Establishment**
+First measured coverage using only seed inputs to establish a reference point.
+
+**Individual Operator Testing**
+Tested each new operator with basic character-level mutations to isolate their individual effects.
+
+**Comparative Analysis**
+Compared all strategies using identical experimental parameters (10,000 inputs, 100-interval measurements).
+
+**Statistical Validation**
+Ensured consistent experimental conditions across all trials.
 
 ## 2.17 Results Analysis and Insights
 
 ### 2.17.1 Key Findings
 
-**Most Effective Strategy:** Character-level mutations + `mutate_interesting_values`
+**Most Effective Strategy: Character-level mutations + mutate_interesting_values**
 - Achieved highest overall coverage (51.4% lines, 41.0% branches)
 - Maintained coverage levels comparable to baseline while providing sustained growth
 - Demonstrated the value of general-purpose mutations over domain-specific ones
 
-**Least Effective Strategies:** SQL-specific mutations (`mutate_data_type_confusion`, `mutate_constraint_violation`)
-- Both achieved similar, lower coverage levels (48.7-48.9% lines, 38.3-38.6% branches)
+**Least Effective Strategies: SQL-specific mutations**
+- Both `mutate_data_type_confusion` and `mutate_constraint_violation` achieved similar, lower coverage levels (48.7-48.9% lines, 38.3-38.6% branches)
 - Saturated earlier than interesting values mutation
 - Suggest that SQLite's robust error handling limits the effectiveness of constraint/type violations
 
 ### 2.17.2 Coverage Pattern Analysis
 
-**Universal Saturation Pattern:** All mutation strategies exhibit the same coverage saturation around 4,000 inputs, indicating:
+**Universal Saturation Pattern**
+All mutation strategies exhibit the same coverage saturation around 4,000 inputs, indicating:
 - SQLite has inherent coverage limitations that mutation-based fuzzing cannot overcome
 - The remaining untested code likely requires structural changes to inputs (grammar-based fuzzing)
 - Character-level mutations provide a solid foundation but are insufficient alone
 
-**Shell vs. Core Disparity:** The persistent gap between shell.c (9-11% coverage) and sqlite3.c (54-57% coverage) suggests:
+**Shell vs. Core Disparity**
+The persistent gap between shell.c (9-11% coverage) and sqlite3.c (54-57% coverage) suggests:
 - Seed corpus bias toward core database functionality
 - Shell interface requires different testing approaches
 - Future work should focus on shell-specific mutation strategies
@@ -431,42 +443,54 @@ Our experimental methodology followed a systematic approach:
 
 ### 2.18.1 What Works Well
 
-1. **Interesting Values Mutation:** The most effective operator demonstrates that boundary value testing remains crucial for database systems
-2. **Character-Level Foundation:** Basic mutations (delete, insert, flip) provide essential coverage improvements across all strategies
-3. **Systematic Evaluation:** Testing operators individually provided clear insights into their relative effectiveness
+**Interesting Values Mutation**
+The most effective operator demonstrates that boundary value testing remains crucial for database systems.
+
+**Character-Level Foundation**
+Basic mutations (delete, insert, flip) provide essential coverage improvements across all strategies.
+
+**Systematic Evaluation**
+Testing operators individually provided clear insights into their relative effectiveness.
 
 ### 2.18.2 What Doesn't Work Well
 
-1. **SQL-Specific Mutations:** Domain-specific operators underperformed, suggesting SQLite's robust error handling
-2. **Coverage Ceiling:** All approaches hit the same 46% ceiling, indicating fundamental limitations of mutation-based fuzzing
-3. **Shell Interface Testing:** Persistent low coverage in shell.c suggests the need for different testing strategies
-4. **Low Coverage Classification:** Despite improvements, all strategies remain in the "low" category (below 75% threshold), highlighting the challenge of achieving comprehensive coverage in complex systems like SQLite
+**SQL-Specific Mutations**
+Domain-specific operators underperformed, suggesting SQLite's robust error handling.
+
+**Coverage Ceiling**
+All approaches hit the same 46% ceiling, indicating fundamental limitations of mutation-based fuzzing.
+
+**Shell Interface Testing**
+Persistent low coverage in shell.c suggests the need for different testing strategies.
+
+**Low Coverage Classification**
+Despite improvements, all strategies remain in the "low" category (below 75% threshold), highlighting the challenge of achieving comprehensive coverage in complex systems like SQLite.
 
 ### 2.18.3 Understanding of Fuzzing Techniques
 
-**Mutation-Based Fuzzing Limitations:**
+**Mutation-Based Fuzzing Limitations**
 - Effective for discovering syntax errors and basic logic bugs
 - Limited by the structural constraints of existing inputs
 - Cannot generate fundamentally new input structures
 
-**Operator Effectiveness Hierarchy:**
+**Operator Effectiveness Hierarchy**
 1. General-purpose mutations (interesting values) > Domain-specific mutations
 2. Character-level mutations provide essential foundation
 3. Combination strategies offer diminishing returns
 
-**Future Directions:**
+**Future Directions**
 - Grammar-based fuzzing needed to break coverage ceiling
 - Shell-specific testing strategies required
 - Hybrid approaches combining mutation and generation-based fuzzing
 
 ### 2.18.4 Practical Implications
 
-**For SQLite Testing:**
+**For SQLite Testing**
 - Focus on boundary value testing for maximum coverage improvement
 - Character-level mutations are essential but insufficient alone
 - SQL-specific mutations have limited effectiveness due to robust error handling
 
-**For Fuzzing Strategy:**
+**For Fuzzing Strategy**
 - Systematic operator evaluation is crucial for understanding effectiveness
 - General-purpose mutations often outperform domain-specific ones
 - Coverage saturation patterns indicate when to switch fuzzing approaches
