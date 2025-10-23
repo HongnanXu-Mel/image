@@ -1,394 +1,384 @@
-# Task 2: Mutation-Based Fuzzing
+# Task 3: 基于模糊测试的漏洞发现
 
-## Overview
+## 3.1 概述
 
-This section documents our systematic exploration of mutation-based fuzzing techniques applied to SQLite. We designed and implemented six additional mutation operators to enhance branch coverage beyond the baseline. Our evaluation focuses on branch coverage in sqlite3.c as the primary metric for measuring fuzzing effectiveness. Through comprehensive experiments comparing different mutation strategies, we identified the most effective approaches and gained insights into the limitations of mutation-based fuzzing.
-
-## 2.1 Baseline Analysis
-
-### 2.1.1 Experimental Setup
-
-We established a baseline using three provided character-level mutation operators. The experiment generated 10,000 test inputs from the seed corpus, with coverage measurements taken every 100 inputs.
-
-### 2.1.2 Baseline Coverage Results
-
-**[Insert Image 1: GCC Code Coverage Report here]**
-
-The baseline achieved the following coverage for sqlite3.c:
-
-- **Branch Coverage: 46.2%** (11,769/25,482 branches executed)
-
-This means less than half of the conditional branches in SQLite are being tested. Each untested branch represents a decision point in the code that could hide bugs or vulnerabilities.
-
-### 2.1.3 Coverage Evolution Over Time
-
-**[Insert Image 2: Branch Coverage Over Time graph here]**
-
-The branch coverage evolution reveals three distinct phases:
-
-**Phase 1: Rapid Initial Discovery (0-500 inputs)**
-
-- Starting point: ~15% branch coverage
-- Steep exponential growth
-- Reaches ~42% within first 500 inputs
-
-**Phase 2: Diminishing Returns (500-4,000 inputs)**
-
-- Growth rate slows significantly
-- Step-wise incremental improvements
-- Reaches ~45% by 4,000 inputs
-
-**Phase 3: Saturation Plateau (4,000-10,000 inputs)**
-
-- Coverage becomes nearly flat
-- Hovers between 45-46%
-- Final coverage: **46.2%**
-
-**Critical Observation:** The saturation at 4,000 inputs indicates that generating more mutated inputs using basic character-level mutations alone is inefficient. This establishes the need for more sophisticated mutation operators.
-
-## 2.2 Mutation Operator Design and Implementation
-
-To break through the baseline coverage ceiling, we designed six additional mutation operators. Each operator was tested individually (combined with the three basic character-level operators) to isolate its contribution to branch coverage improvement.
-
-### 2.2.1 Strategy 1: mutate_interesting_values
-
-#### Description
-
-The `mutate_interesting_values` operator specifically targets numerical literals in SQL statements by replacing them with a predefined dictionary of boundary values. When applied, it scans the input for numeric patterns using regex, randomly selects one number, and replaces it with values known to trigger edge cases: zero (for null checks and division-by-zero), negative one (common error return code), 8-bit boundaries (127, 128, 255, 256), 16-bit boundaries (32767, 32768, 65535, 65536), and 32-bit extremes (2147483647, -2147483648). These transformations directly inject values that are statistically unlikely to appear through random character mutations but are critical for testing boundary condition checks in database code. The operator performs a single replacement per mutation to maintain input validity while systematically exploring numeric edge cases.
-
-#### Motivation
-
-The motivation for designing this operator is to efficiently discover conditional branches that check for specific boundary values. Database systems like SQLite contain extensive conditional logic testing for zero values, negative error codes, and integer overflow conditions. Random character-level mutations have extremely low probability of generating these exact values, leaving many boundary-checking branches untested. By deterministically injecting boundary values, we force execution through conditional paths like `if (value == 0)`, `if (index < 0)`, and `if (size >= MAX_INT)`, significantly improving branch coverage in arithmetic operations, array indexing, and error handling code paths.
-
-#### Experimental Results
-
-**Branch Coverage in sqlite3.c:**
-
-- **46.5%** (11,858/25,482 branches)
-- **+0.3pp** vs baseline (46.2%)
-- **+89 additional branches** discovered
-
-**Coverage Evolution:**
-
-- Starting coverage: ~25% (vs ~15% baseline)
-- Sustained gradual improvement throughout 10,000 inputs
-- Saturation: ~4,000 inputs
-- Final plateau: ~46.5%
-
-**Analysis:**
-The interesting values mutation achieved the highest branch coverage. The 25% starting coverage (vs 15% baseline) demonstrates that boundary values instantly trigger conditional branches that random mutations miss. This operator successfully discovered branches in boundary condition checks, error code validation, and overflow detection logic.
+在Task 3中，我们通过大规模模糊测试在SQLite 3.31版本中成功发现了**2个空指针解引用漏洞（Null Pointer Dereference, CWE-476）**。基于Task 2的经验，我们采用迭代优化策略，设计了针对性的种子文件和智能变异算子，将漏洞触发效率提升了500倍（从500万次降至约1万次）。
 
 ---
 
-### 2.2.2 Strategy 2: mutate_sql_structure
+## 3.2 实现方法与决策理由
 
-#### Description
+### 3.2.1 漏洞发现的三个阶段
 
-The `mutate_sql_structure` operator performs comprehensive SQL-aware transformations at the statement level. It first splits multi-statement inputs by semicolons and randomly selects statements to mutate (biased toward single statement with 80% probability). For each selected statement, it applies multiple transformation strategies: keyword replacement or typo injection (60% probability, replacing keywords or introducing typos like SELCT, FRM); clause insertion (45% for SELECT, adding ORDER BY, LIMIT, GROUP BY, HAVING, or JOIN clauses); constant modification (60% probability, mutating numeric constants with wide random deltas including INT_MAX/MIN, and replacing strings with random names, very long strings, Unicode characters, zero bytes, or NULL); BLOB injection (15% for INSERT, inserting hexadecimal BLOB literals); subquery wrapping (25% for SELECT); statement splicing (12%, extracting clauses from other statements); and statement truncation (8%, simulating corrupted inputs). Safety caps ensure outputs don't exceed 10,000 characters to maintain fuzzer efficiency.
+**阶段1：初期探索（失败）**
+- 使用Task 2的36个通用种子和3个自定义算子
+- 运行超过500万次测试，持续3天
+- **结果**：未发现任何漏洞
+- **失败原因**：缺少针对特定漏洞模式的测试（如自引用生成列、窗口函数、复杂VIEW）
 
-#### Motivation
+**阶段2：针对性改进（成功）**
+- 添加2个针对性种子（task3_seed1.dat, task3_seed2.dat）
+- 添加2个智能算子（mutate_view_based_patterns, mutate_window_aggregate_patterns）
+- 运行超过500万次测试
+- **结果**：成功发现2个不同的bug
 
-The motivation for this operator is to generate diverse, structurally complex SQL inputs that go beyond simple character-level mutations. By handling multi-statement inputs and supporting a wide range of transformation strategies, we simulate realistic SQL usage patterns including complex queries with multiple clauses, nested subqueries, and statement combinations that developers commonly use. The probability-weighted approach balances between generating valid, meaningful SQL (for testing normal execution paths) and corrupted SQL (for testing error handling). This comprehensive mutation strategy helps break through coverage plateaus by generating inputs that are structurally different from the seed corpus, targeting branches in query planning, optimization, execution, and error recovery code paths.
+**阶段3：优化验证（高效）**
+- 优化种子和算子配置
+- 仅使用Task 3种子和新算子
+- **结果**：约1万次执行即可触发bug（效率提升500倍）
 
-#### Experimental Results
+**决策理由：**
+1. **为什么添加新种子**：分析已知CVE后发现缺少VIEW+生成列、窗口函数+嵌套查询的测试
+2. **为什么设计新算子**：字节级变异无法生成复杂的SQL结构组合（如COALESCE+窗口函数+嵌套子查询）
+3. **为什么选择这两类模式**：SQLite 3.31的已知bug集中在查询优化器和表达式生成器，这两类模式能够触发相关代码路径
 
-**Branch Coverage in sqlite3.c:**
+### 3.2.2 新增种子设计
 
-- **44.8%** (11,412/25,482 branches)
-- **-1.4pp** vs baseline (46.2%)
-- **-357 fewer branches** discovered
+#### 3.2.2.1 task3_seed1.dat - VIEW与生成列种子
 
-**Coverage Evolution:**
+**1. Description**
 
-- Starting coverage: ~16% (similar to baseline)
-- Slower growth than baseline
-- Earlier saturation: ~3,500 inputs
-- Final plateau: ~44.8%
+该种子文件包含29行SQL语句，专门设计用于测试SQLite的VIEW、生成列（generated columns）和COALESCE函数的交互。核心内容包括：
 
-**Analysis:**
-Despite its complexity, the SQL structure operator underperformed baseline. The comprehensive transformations often generated syntactically invalid SQL that the parser rejected early, preventing exploration of deeper execution branches. The multiple simultaneous modifications increased the likelihood of creating unparseable inputs.
+- **自引用生成列表**：`CREATE TABLE products(prod_id, prod_name AS(prod_name) UNIQUE)`
+- **多个带UNIQUE约束的表**：inventory和categories表
+- **基础VIEW定义**：`CREATE VIEW inv_view AS SELECT item_id, item_name FROM inventory`
+- **基础查询操作**：简单的SELECT和JOIN查询
+- **插入操作**：为表提供基础数据
+
+种子结构简洁清晰，每个表只包含必要的列，避免了不相关的SQL语句干扰。
+
+**2. 为什么这样设计**
+
+**设计动机1：触发VIEW与生成列的交互bug**
+SQLite 3.31在处理包含生成列的VIEW时，查询优化器可能出现错误。自引用生成列（`col AS(col)`）创建了特殊的表达式树结构，当与VIEW的COALESCE函数组合时，容易触发WHERE表达式分析器的空指针问题。
+
+**设计动机2：为变异算子提供材料**
+- 提供多个表：让算子可以生成复杂的JOIN
+- 包含UNIQUE约束：为算子创建复杂约束环境提供基础
+- 包含VIEW：让算子可以在此基础上生成更复杂的VIEW
+- 保持简洁：减少噪音，让变异聚焦于关键模式
+
+**设计动机3：模拟真实场景**
+使用产品目录、库存、分类等真实业务场景，使生成的SQL更接近实际应用，提高测试的实用性。
+
+**设计动机4：配合mutate_view_based_patterns算子**
+种子提供的表结构和VIEW定义，正是该算子需要的"原材料"。算子可以提取表名和列名，生成包含COALESCE和复杂WHERE条件的新VIEW。
+
+#### 3.2.2.2 task3_seed2.dat - 窗口函数与聚合种子
+
+**1. Description**
+
+该种子文件包含30行SQL语句，专门设计用于测试SQLite的窗口函数、自连接和嵌套聚合。核心内容包括：
+
+- **极简表结构**：`CREATE TABLE items(id UNIQUE)`仅包含必要的列
+- **自连接查询模板**：`SELECT items.id FROM items JOIN items i2 ON items.id = i2.id`
+- **聚合函数示例**：SUM、COUNT等基础聚合
+- **子查询模式**：IN子查询和标量子查询
+- **交叉表连接**：items与refs的JOIN操作
+
+种子采用极简设计，每个表只有1-2个列，所有查询都是基础模式的简单组合。
+
+**2. 为什么这样设计**
+
+**设计动机1：触发窗口函数与嵌套聚合的bug**
+SQLite 3.31在处理窗口函数（如lead() OVER()）与聚合函数（如SUM）的嵌套组合时，表达式代码生成器可能出现空指针问题。该种子提供了自连接和聚合的基础模式，供算子生成复杂嵌套。
+
+**设计动机2：极简schema策略**
+- 最少的列数：减少变异空间，聚焦核心模式
+- 最简单的类型：避免类型相关的干扰
+- 没有复杂约束：让变异聚焦于查询结构而非约束处理
+
+**设计动机3：提供自连接模板**
+自连接是触发Bug #002的关键。种子明确提供了自连接示例，让变异算子理解这种模式，并在此基础上生成更复杂的多层自连接和NATURAL JOIN组合。
+
+**设计动机4：配合mutate_window_aggregate_patterns算子**
+种子中的聚合函数（SUM、COUNT）和自连接模式，正是该算子需要的基础。算子会提取表名和列名，生成包含lead() OVER()、嵌套子查询和相关引用的复杂查询。
+
+### 3.2.3 新增变异算子设计
+
+#### 3.2.3.1 mutate_view_based_patterns算子
+
+**1. Description**
+
+该算子专门针对VIEW、生成列和COALESCE函数设计，实现了6种变异策略：
+
+**策略1 - 创建自引用生成列表**：生成`CREATE TABLE tbl{random}(col, col AS(col) UNIQUE)`形式的表，其中列名与生成列表达式相同，形成自引用。
+
+**策略2 - 创建多UNIQUE约束表**：生成包含多个UNIQUE约束的表，如`CREATE TABLE tbl{random}(col1 UNIQUE, col2 UNIQUE)`。
+
+**策略3 - 创建含COALESCE的VIEW**：从现有表中提取列名，生成如`CREATE VIEW v{random}(c{random}) AS SELECT coalesce(col1, col2) FROM table WHERE col IN('VALUE')`的VIEW。
+
+**策略4 - 生成VIEW与表的复杂JOIN**：结合现有VIEW和表，生成包含复杂WHERE条件的JOIN查询，如`SELECT * FROM view JOIN table WHERE c1 IS NULL AND view_col OR c2 = 'test'`。
+
+**策略5 - IFNULL到COALESCE的转换**：将输入中的IFNULL函数替换为等价的COALESCE函数。
+
+**策略6 - 向VIEW的SELECT添加COALESCE**：识别现有VIEW定义，自动在SELECT子句中包装列为COALESCE函数。
+
+**2. 为什么这样设计**
+
+**针对已知bug模式**：通过分析SQLite 3.31的已知CVE，我们发现WHERE表达式分析器在处理以下组合时存在潜在问题：
+- 生成列的自引用会创建特殊的表达式树
+- VIEW中使用COALESCE引用生成列时，查询展开变得复杂
+- WHERE条件包含`IS NULL AND ... OR ...`模式时，优化器需要特殊处理
+
+**组合多个高风险特征**：单一特征通常不会触发bug，需要多个特征组合。该算子能够系统性地生成VIEW+生成列+COALESCE+复杂WHERE的组合。
+
+**保持语法正确性**：算子从现有表中提取真实的表名和列名，确保生成的SQL语法正确，能够深入执行阶段而不是在解析阶段失败。
+
+**渐进式复杂度**：6种策略从简单到复杂，确保既能触发简单场景的bug，也能触发复杂组合的bug。
+
+#### 3.2.3.2 mutate_window_aggregate_patterns算子
+
+**1. Description**
+
+该算子专门针对窗口函数、自连接和嵌套聚合设计，实现了5种变异策略：
+
+**策略1 - 生成自连接查询**：创建表与自身的JOIN，如`SELECT table.col FROM table JOIN table alias ON value = table.col`，使用常量作为JOIN条件。
+
+**策略2 - 生成NATURAL JOIN**：生成表的自然连接，如`SELECT * FROM table NATURAL JOIN table alias`，自动匹配同名列。
+
+**策略3 - 添加窗口函数**：在查询中插入lead()窗口函数，如`SELECT lead(value) OVER() FROM table`。
+
+**策略4 - 嵌套子查询与COALESCE+SUM组合**：生成三层嵌套结构，如`SELECT (SELECT coalesce(lead(n) OVER(), SUM(col))) FROM table alias`。
+
+**策略5 - 复杂多重自连接与嵌套聚合WHERE**：组合所有高风险模式，生成包含显式JOIN、NATURAL JOIN、WHERE IN嵌套子查询、窗口函数和聚合函数的复杂查询。
+
+**2. 为什么这样设计**
+
+**针对表达式代码生成器**：SQLite的表达式代码生成器是最复杂的组件之一。窗口函数需要特殊的上下文处理，嵌套子查询需要正确的变量绑定，这些复杂性容易导致空指针问题。
+
+**窗口函数的特殊性**：lead() OVER()访问下一行数据，在空结果集或特定上下文中可能导致未初始化的指针访问。与聚合函数SUM嵌套使用时，求值顺序和上下文管理更加复杂。
+
+**多层自连接的复杂性**：表与自身多次连接会创建复杂的列绑定环境。当NATURAL JOIN与显式JOIN混用时，列名解析变得更加复杂，优化器容易出错。
+
+**相关子查询的挑战**：内层子查询引用外层查询的列（如`WHERE items.id IN(... FROM items i9 WHERE items.id)`）需要特殊的变量传递机制，这是bug的高发区域。
+
+**渐进式复杂度策略**：策略1-3生成相对简单的模式，策略4-5组合多个特征。这种设计确保了既能触发简单场景的bug，也能触发需要多个特征组合的复杂bug。
 
 ---
 
-### 2.2.3 Strategy 3: mutate_data_type_confusion
+## 3.3 发现的漏洞
 
-#### Description
+### 3.3.1 Bug #001: WHERE表达式分析器空指针解引用
 
-The `mutate_data_type_confusion` operator introduces type system inconsistencies through targeted transformation patterns: replacing INTEGER with TEXT in column type declarations; replacing REAL with INTEGER; replacing TEXT with BLOB; and wrapping numeric values in quotes within INSERT statements to create string representations where numeric data is expected. All transformations are case-insensitive and limited to one replacement per mutation to maintain some semblance of validity while introducing type conflicts. The operator systematically targets both schema-level type declarations (in CREATE TABLE statements) and data-level type usage (in INSERT VALUES clauses).
+**漏洞信息：**
+- 类型：CWE-476 (Null Pointer Dereference)
+- 崩溃位置：sqlite3.c:142576 `isAuxiliaryVtabOperator`
+- Bug签名：cba0df1f110d863563528a26d5d3fca6
 
-#### Motivation
+**触发模式：**
+```sql
+CREATE TABLE products(prod_id, prod_name AS(prod_name) UNIQUE);
+CREATE VIEW v36(vc3) AS SELECT coalesce(prod_id, prod_name) 
+FROM products WHERE prod_name IN('VALUE');
+CREATE TABLE t617(c8 UNIQUE, c9 UNIQUE);
+SELECT * FROM v36 JOIN t617 WHERE c8 IS NULL AND vc3 OR c9 = 'test';
+```
 
-The motivation for this operator is to test SQLite's flexible type system and its handling of type affinity rules, implicit type conversions, and type mismatches. SQLite's dynamic typing approach creates numerous conditional branches that check value types, perform type conversions, and handle type coercion scenarios. By deliberately confusing data types at both schema and data levels, we aim to exercise type-handling branches and discover potential bugs in type conversion routines, type checking logic, and edge cases where implicit conversions might behave unexpectedly. This helps test whether SQLite correctly handles all possible type combinations and whether type affinity rules are consistently applied across different code paths.
+**关键特征**：自引用生成列 + COALESCE的VIEW + 复杂WHERE条件（IS NULL AND ... OR ...）
 
-#### Experimental Results
+**根本原因**：查询优化器在分析包含VIEW列的OR表达式时，未正确处理生成列引用，导致访问空指针。
 
-**Branch Coverage in sqlite3.c:**
+### 3.3.2 Bug #002: 表达式代码生成器空指针解引用
 
-- **43.7%** (11,136/25,482 branches)
-- **-2.5pp** vs baseline (46.2%)
-- **-633 fewer branches** discovered
+**漏洞信息：**
+- 类型：CWE-476 (Null Pointer Dereference)
+- 崩溃位置：sqlite3.c:102733 `sqlite3ExprCodeTarget`
+- Bug签名：7aeb314cb45a096e7441d6fac5eb993e
 
-**Coverage Evolution:**
+**触发模式：**
+```sql
+CREATE TABLE items(id UNIQUE);
+SELECT items.id FROM items 
+JOIN items i3 ON 5 = items.id 
+NATURAL JOIN items 
+WHERE items.id IN((SELECT(SELECT coalesce(lead(2) OVER(), SUM(id))) 
+FROM items i9 WHERE items.id));
+```
 
-- Starting coverage: ~15% (similar to baseline)
-- Slower growth than baseline
-- Earlier saturation: ~3,000 inputs
-- Final plateau: ~43.7%
+**关键特征**：多层自连接 + NATURAL JOIN + 窗口函数与聚合函数嵌套 + 相关子查询
 
-**Analysis:**
-The type confusion operator unexpectedly decreased branch coverage. Most type confusion mutations generated syntactically invalid SQL that the parser rejected immediately. Additionally, SQLite's graceful type system handles many type mismatches through automatic conversion, meaning different type confusions triggered the same centralized conversion branches repeatedly rather than discovering new branches.
-
----
-
-### 2.2.4 Strategy 4: mutate_constraint_violation
-
-#### Description
-
-The `mutate_constraint_violation` operator manipulates SQL constraints through four distinct violation strategies: removing NOT NULL constraints from column definitions; removing UNIQUE constraints; removing PRIMARY KEY constraints; and appending duplicate INSERT statements with the same primary key value but different data to create explicit primary key conflicts. All pattern matching is case-insensitive and limited to one modification per mutation. The duplicate insertion strategy creates a multi-statement input where the second statement violates the primary key constraint established by the first, forcing the constraint checking code to detect and handle the violation.
-
-#### Motivation
-
-The motivation for designing this operator is to test SQLite's constraint enforcement mechanisms and error handling paths. SQL constraints are fundamental to data integrity, and their validation requires extensive conditional logic to check for violations, report errors, and potentially rollback transactions. By systematically removing constraint declarations (making previously invalid insertions become valid) and explicitly creating constraint violations (inserting duplicate keys, null values where prohibited), we aim to exercise constraint checking code paths that may not be reached by random mutations. This helps test whether SQLite consistently enforces constraints across different SQL operations, whether error messages are correctly generated, and whether constraint violations properly trigger transaction rollbacks.
-
-#### Experimental Results
-
-**Branch Coverage in sqlite3.c:**
-
-- **43.9%** (11,187/25,482 branches)
-- **-2.3pp** vs baseline (46.2%)
-- **-582 fewer branches** discovered
-
-**Coverage Evolution:**
-
-- Starting coverage: ~15% (similar to baseline)
-- Similar growth to type confusion strategy
-- Earlier saturation: ~3,000 inputs
-- Final plateau: ~43.9%
-
-**Analysis:**
-The constraint violation operator also decreased branch coverage. SQLite's robust constraint checking is well-tested and centralized. Violations triggered the same error-handling branches repeatedly. Additionally, constraint violations were detected early in execution, preventing exploration of deeper execution branches. Most violations led to early rejection without discovering new conditional paths.
+**根本原因**：表达式代码生成器在处理嵌套子查询的窗口函数时，由于复杂的列绑定环境，表达式树节点未正确初始化，导致空指针解引用。
 
 ---
 
-### 2.2.5 Strategy 5: mutate_alter_rename_variants
+## 3.4 漏洞复现说明
 
-#### Description
+### 3.4.1 环境准备
 
-The `mutate_alter_rename_variants` operator specifically transforms the semantics and syntax of ALTER TABLE ... RENAME statements. It switches between "table rename (RENAME TO)" and "column rename (RENAME COLUMN a TO b)" semantics. When column names can be parsed from CREATE TABLE statements, a column rename variant is generated by randomly selecting an existing column. The operator intentionally adds or removes quotes/backticks around identifiers, deletes keywords (such as TO) to create subtle syntactical corruptions, and generates malformed variants with brackets or missing tokens in the absence of a clear pattern. These changes not only simulate commands used in real migration/development scenarios, but also trigger the parser to handle legal and illegal rename semantics differently, making it easier to expose parser boundaries, semantic conflicts, or name resolution errors. Probability weights control the frequency of each transformation, striking a balance between generating parseable and meaningful variants and creating interesting malformations.
+```bash
+cd system
+make clean
+make sqlite3-asan  # 编译带AddressSanitizer的SQLite
+```
 
-#### Motivation
+### 3.4.2 手动触发漏洞
 
-The motivation for designing this operator is to help the fuzzer more effectively explore parsing and execution branches related to ALTER ... RENAME operations. By switching between table and column renames, generating minor syntax corruptions, and randomly referencing existing column names, we increase input diversity, simulating real-world errors and migration scenarios while forcing the parser to branch when handling different legitimate and edge cases, thereby improving coverage and increasing the chances of discovering potential vulnerabilities. SQLite's parser must distinguish between table-level and column-level rename operations, which involve different code paths for name resolution, schema updates, and validation.
+**Bug #001：**
+```bash
+./sqlite3-asan empty.db < ../results/bugs/bug_001_POC.dat
+```
 
-#### Experimental Results
+**Bug #002：**
+```bash
+./sqlite3-asan empty.db < ../results/bugs/bug_002_POC.dat
+```
 
-**Branch Coverage in sqlite3.c:**
+**预期结果**：AddressSanitizer报告SEGV错误并显示详细栈追踪。
 
-- **45.1%** (11,489/25,482 branches)
-- **-1.1pp** vs baseline (46.2%)
-- **-280 fewer branches** discovered
+### 3.4.3 通过模糊测试自动发现
 
-**Coverage Evolution:**
+**使用所有种子：**
+```bash
+python3 run_experiment.py \
+    --fuzzer_type mutation_based \
+    --feedback_enabled \
+    --corpus seed-corpus \
+    --runs 50000
+```
 
-- Starting coverage: ~16% (similar to baseline)
-- Moderate growth rate
-- Saturation: ~3,800 inputs
-- Final plateau: ~45.1%
+**使用仅Task 3种子（更高效）：**
+```bash
+mkdir -p task3-corpus
+cp seed-corpus/task3_seed*.dat task3-corpus/
+python3 run_experiment.py \
+    --fuzzer_type mutation_based \
+    --feedback_enabled \
+    --corpus task3-corpus \
+    --runs 20000
+```
 
-**Analysis:**
-The ALTER RENAME variants operator showed moderate performance but still underperformed baseline. While it successfully exercised schema modification branches, the specialized focus on ALTER statements limited its applicability. Many mutated inputs from the seed corpus contained no ALTER statements, reducing the operator's effectiveness. The operator performed better than type confusion and constraint violation, suggesting that schema modification mutations are more productive than semantic violations.
-
----
-
-### 2.2.6 Strategy 6: mutate_auto_blob
-
-#### Description
-
-The `mutate_auto_blob` operator appends a standardized BLOB manipulation payload to input SQL. The transformation follows three steps: if the input contains ALTER TABLE statements, it appends a double semicolon with comment marker (`; -- auto-blob`) to separate the original content; it appends a CREATE TABLE statement for a temporary BLOB table (`CREATE TABLE IF NOT EXISTS __fuzz_blob_tmp(x BLOB)`); and it appends an INSERT statement with a large hexadecimal BLOB literal consisting of 512 randomly generated hex digits (`INSERT INTO __fuzz_blob_tmp(x) VALUES (X'...')`). The operator unconditionally appends this payload regardless of the original input content, making it an augmentation strategy that ensures every mutated input includes BLOB testing.
-
-#### Motivation
-
-The motivation for this operator is to systematically test SQLite's BLOB handling capabilities, which represent a distinct execution path from standard text and numeric data processing. BLOB data requires special parsing (hexadecimal X'...' notation), storage allocation (large binary buffers), and processing logic that may contain bugs not exercised by typical SQL fuzzing. By consistently appending a BLOB creation and insertion sequence, we ensure that every mutated input includes a test of BLOB functionality, increasing the probability of discovering bugs in BLOB parsing code, large data allocation routines, BLOB storage and retrieval mechanisms, and edge cases in handling binary data. The use of CREATE TABLE IF NOT EXISTS ensures idempotency, while the double semicolon syntax tests the parser's handling of multiple consecutive statement separators.
-
-#### Experimental Results
-
-**Branch Coverage in sqlite3.c:**
-
-- **44.2%** (11,265/25,482 branches)
-- **-2.0pp** vs baseline (46.2%)
-- **-504 fewer branches** discovered
-
-**Coverage Evolution:**
-
-- Starting coverage: ~17% (slightly higher than baseline)
-- Moderate growth rate
-- Saturation: ~3,500 inputs
-- Final plateau: ~44.2%
-
-**Analysis:**
-The auto-BLOB operator decreased branch coverage despite consistently testing BLOB functionality. The unconditional payload append strategy increased input length significantly, potentially causing parser timeouts or early rejection. While it successfully exercised BLOB-related branches initially (explaining the 17% starting coverage), the repetitive nature of the payload provided diminishing returns, and the increased input complexity may have reduced the effectiveness of other mutation operators applied in the same mutation chain.
+**预期结果**：通常在1-2万次执行内触发bug，框架自动保存触发输入到bugs目录。
 
 ---
 
-## 2.3 Comparative Analysis
+## 3.5 实验反思与经验总结
 
-### 2.3.1 Coverage Comparison
+### 3.5.1 什么有效
 
-| Strategy                         | Branch Coverage | vs Baseline | Branches Discovered | Performance |
-| -------------------------------- | --------------- | ----------- | ------------------- | ----------- |
-| **Baseline** (3 basic operators) | **46.2%**       | -           | 11,769              | Reference   |
-| + **mutate_interesting_values**  | **46.5%**       | **+0.3pp**  | **11,858 (+89)**    | ✅ **Best**  |
-| + mutate_alter_rename_variants   | 45.1%           | -1.1pp      | 11,489 (-280)       | ⚠️ Moderate  |
-| + mutate_auto_blob               | 44.2%           | -2.0pp      | 11,265 (-504)       | ❌ Poor      |
-| + mutate_sql_structure           | 44.8%           | -1.4pp      | 11,412 (-357)       | ❌ Poor      |
-| + mutate_constraint_violation    | 43.9%           | -2.3pp      | 11,187 (-582)       | ❌ Worst     |
-| + mutate_data_type_confusion     | 43.7%           | -2.5pp      | 11,136 (-633)       | ❌ Worst     |
+**✓ 针对性种子设计**
+- Task 3的简洁针对性种子优于Task 2的全面通用种子（在漏洞发现方面）
+- 种子应该为算子提供"正确的建筑材料"
 
-### 2.3.2 Key Findings
+**✓ 智能的语义感知变异**
+- 两个新算子能够生成极其复杂的SQL模式组合
+- 比字节级变异更有效地触发深层bug
 
-**Finding 1: Only Boundary Value Testing Improved Coverage**
+**✓ 迭代优化方法**
+- 从500万次失败到1万次成功，关键是持续分析和改进
+- 失败提供了改进方向
 
-Among the six additional operators, only `mutate_interesting_values` improved branch coverage over baseline (+0.3pp). This demonstrates that deterministic boundary value injection is more effective than complex SQL-aware mutations for discovering untested conditional branches.
+**✓ AddressSanitizer的使用**
+- 将隐藏的内存错误转化为明确崩溃
+- 提供详细栈追踪，便于分析
 
-**Finding 2: SQL-Aware Mutations Are Counterproductive**
+### 3.5.2 什么无效
 
-Five out of six operators decreased branch coverage by 1-2.5 percentage points. These SQL-aware mutations (`mutate_sql_structure`, `mutate_data_type_confusion`, `mutate_constraint_violation`, `mutate_auto_blob`) consistently underperformed the simple baseline. This reveals that domain-specific mutations can be counterproductive when they conflict with the target's robust error handling.
+**✗ 缺乏针对性的盲目测试**
+- 初期500万次测试未发现漏洞
+- 仅靠测试次数和运气是低效的
 
-**Finding 3: Early Rejection Problem**
+**✗ 过度通用的种子**
+- Task 2的36个种子覆盖率高但无法发现漏洞
+- 太多无关内容稀释了关键模式
 
-The underperforming operators share a common failure mode: they generate inputs that SQLite's parser or early validation logic rejects before reaching deeper execution branches. Type confusion breaks syntax, constraint violations trigger centralized error handlers, and complex structural mutations create unparseable SQL. This early rejection prevents exploration of the conditional logic these operators intended to test.
+**✗ 忽视已知漏洞模式**
+- 应该先研究目标软件的已知CVE
+- 了解高风险代码区域
 
-**Finding 4: Universal Coverage Ceiling at ~46%**
+### 3.5.3 模糊测试的优势
 
-All strategies, regardless of sophistication, hit approximately the same coverage ceiling around 46%. Even the best-performing strategy only reached 46.5%. This demonstrates a fundamental limitation: mutation-based fuzzing cannot generate structurally novel inputs needed to discover the remaining 54% of untested branches.
+1. **高度自动化**：无需人工干预，可运行数百万次测试
+2. **覆盖率引导**：自动探索新代码路径，提高效率
+3. **发现复杂bug**：能够发现需要极其复杂模式组合的bug
+4. **可扩展性**：易于添加新算子和种子
 
-**Finding 5: Saturation Pattern Persists**
+### 3.5.4 模糊测试的局限性
 
-All strategies saturated between 3,000-4,000 inputs. Beyond this point, additional inputs provided minimal coverage improvement (<1%). This saturation pattern indicates that mutation-based fuzzing has inherent efficiency limits that cannot be overcome by adding more sophisticated operators.
+1. **依赖先验知识**：Task 3的成功依赖于对已知CVE的分析，对零日漏洞发现可能不够高效
+2. **资源消耗大**：需要数万次测试，覆盖率收集降低速度
+3. **覆盖率瓶颈**：在46%左右达到瓶颈，难以进一步提升
+4. **只检测崩溃**：依赖ASAN，无法检测逻辑错误
+5. **针对性与通用性矛盾**：针对性种子能发现特定bug但覆盖范围有限
 
-## 2.4 Reflections and Understanding
+### 3.5.5 改进建议
 
-### 2.4.1 What Works Well
+**立即可行：**
+1. 结合语法生成和变异fuzzing
+2. 实现上下文感知的变异
+3. 集成更多sanitizers（UBSan、MSan）
+4. 优化算子选择策略
 
-**Deterministic Boundary Value Testing**
+**长期方向：**
+1. 引入符号执行混合技术
+2. 使用机器学习优化策略
+3. 实现差分测试检测逻辑错误
+4. 开发漏洞模式自动学习机制
 
-The success of `mutate_interesting_values` validates the principle that targeted, deterministic mutations outperform random mutations for specific bug classes. Database systems contain extensive boundary checking logic, and systematically injecting known problematic values (0, -1, MAX_INT) efficiently discovers these branches.
+---
 
-**Simple Character-Level Foundation**
+## 3.6 总结
 
-The baseline character-level mutations remain essential. They provide rapid initial coverage (0% → 42% in 500 inputs) and discover parser/syntax error handling branches. No sophisticated operator significantly outperformed this simple baseline.
+**主要成果：**
+- 发现2个CWE-476漏洞，均可导致DoS
+- 开发2个针对性种子和2个智能算子
+- 漏洞触发效率提升500倍
 
-**Empirical Evaluation Over Intuition**
+**最高覆盖率：**
+- Task 2最高覆盖率：sqlite3.c 46.2%（使用Interesting Values算子）
 
-Our systematic evaluation revealed that intuition about operator effectiveness can be wrong. The most "intelligent" SQL-aware operators (structure, type confusion, constraints) actually decreased coverage, while the simple boundary value operator succeeded.
+**技术贡献：**
+- mutate_view_based_patterns：针对VIEW+生成列+COALESCE模式
+- mutate_window_aggregate_patterns：针对窗口函数+自连接+嵌套聚合
 
-### 2.4.2 What Doesn't Work Well
+**关键经验：**
+1. 代码覆盖率≠漏洞发现能力，需要针对性策略
+2. 智能变异远优于盲目测试
+3. 迭代优化是关键：从失败中学习并持续改进
+4. 语义完整性很重要：探索性变异优于破坏性变异
 
-**Complex SQL-Aware Mutations**
+通过Task 2和Task 3，我们建立了从广泛探索到定向测试的系统化方法论，这对未来的安全测试工作具有重要指导意义。
 
-Operators that perform complex semantic transformations (`mutate_sql_structure`, `mutate_data_type_confusion`, `mutate_constraint_violation`) consistently decreased coverage. This failure stems from:
+---
 
-1. **Syntax Breaking**: Complex transformations often generate syntactically invalid SQL
-2. **Early Rejection**: SQLite's parser rejects malformed inputs before reaching interesting branches
-3. **Centralized Error Handling**: Violations trigger the same error paths repeatedly
-4. **Graceful Degradation**: SQLite's robust design handles many "errors" gracefully without branching
+## 附录：详细复现步骤
 
-**Domain-Specific Mutations Without Architecture Alignment**
+**环境准备：**
+```bash
+# 安装依赖
+sudo apt-get install python3 python3-pip gcc make
+pip3 install fuzzingbook matplotlib gcovr
+```
 
-SQL-specific mutations failed because they conflicted with SQLite's design philosophy:
+**验证已发现的bug：**
+```bash
+cd system
+make sqlite3-asan
+./sqlite3-asan empty.db < ../results/bugs/bug_001_POC.dat  # Bug #001
+./sqlite3-asan empty.db < ../results/bugs/bug_002_POC.dat  # Bug #002
+```
 
-- Type confusion fails because SQLite has a flexible, forgiving type system
-- Constraint violations fail because validation is centralized and well-tested
-- Structure mutations fail because complex changes break parser assumptions
+**自动发现bug：**
+```bash
+# 使用所有种子
+python3 run_experiment.py --fuzzer_type mutation_based \
+    --feedback_enabled --corpus seed-corpus --runs 50000
 
-**Unconditional Payload Injection**
+# 使用仅Task 3种子（更高效）
+mkdir task3-corpus
+cp seed-corpus/task3_seed*.dat task3-corpus/
+python3 run_experiment.py --fuzzer_type mutation_based \
+    --feedback_enabled --corpus task3-corpus --runs 20000
+```
 
-The `mutate_auto_blob` operator's unconditional append strategy reduced overall effectiveness. Increasing input length and complexity for every mutation decreased the impact of other operators and may have triggered parser timeouts.
+**预期结果**：
+- 手动验证应稳定触发ASAN错误
+- 自动fuzzing通常在1-2万次内发现bug
+- Bug保存在bugs/目录
 
-### 2.4.3 Understanding of Fuzzing Techniques
-
-**Mutation-Based Fuzzing Limitations**
-
-Our experiments clearly demonstrate mutation-based fuzzing's fundamental limitation: it cannot generate structurally novel inputs. All strategies saturated at ~46%, regardless of operator sophistication. The remaining 54% of branches require:
-
-- SQL features not present in seed corpus
-- Specific statement structures mutations cannot create
-- Feature combinations that don't exist in seeds
-
-**The Early Rejection Problem**
-
-A critical insight from our experiments is the "early rejection problem": mutations that generate invalid inputs are rejected by early parsing/validation stages, preventing exploration of deeper code branches. Effective mutation operators must:
-
-- Preserve enough validity to pass initial parsing
-- Introduce variations that reach execution logic
-- Avoid triggering centralized error handlers
-
-**Operator Design Principles**
-
-Based on our results, effective mutation operators should:
-
-- ✅ Target general programming patterns (boundary checks)
-- ✅ Use deterministic injection over random modification
-- ✅ Preserve syntactic validity
-- ✅ Align with target system architecture
-- ❌ Avoid complex simultaneous modifications
-- ❌ Avoid triggering early rejection mechanisms
-- ❌ Avoid centralized error paths
-
-### 2.4.4 Implications for SQLite Fuzzing Strategy
-
-**Immediate Recommendations**
-
-1. **Use only effective operators**: Character-level + `mutate_interesting_values`
-2. **Remove counterproductive operators**: Disable type confusion, constraint violation, SQL structure, and auto-BLOB operators
-3. **Optimize fuzzing efficiency**: Limit runs to ~4,000 inputs where saturation occurs
-
-**Why Five Operators Failed**
-
-The failure of five operators provides valuable lessons:
-
-- **Complex ≠ Effective**: Sophistication doesn't guarantee better coverage
-- **Domain Knowledge Can Hurt**: SQL-specific knowledge led to mutations that conflict with SQLite's design
-- **Robustness Is a Double-Edged Sword**: SQLite's excellent error handling limits mutation-based fuzzing effectiveness
-
-**Path Forward: Grammar-Based Fuzzing**
-
-The 46% coverage ceiling conclusively demonstrates that mutation-based fuzzing alone is insufficient. The untested 54% of branches require inputs with:
-
-- Novel SQL feature combinations (CTEs + window functions + triggers)
-- Complex nested structures (subqueries, joins, unions)
-- Advanced features (full-text search, virtual tables, custom functions)
-
-Only grammar-based fuzzing can generate these structurally novel inputs. Our mutation-based analysis establishes a clear foundation and identifies the coverage gap that grammar-based approaches must address.
-
-## 2.5 Conclusion
-
-Our systematic exploration of mutation-based fuzzing for SQLite reveals both valuable insights and fundamental limitations:
-
-**Key Findings:**
-
-1. **Simple outperforms complex**: Basic character-level mutations + boundary values achieved best results (46.5%)
-2. **Five of six new operators decreased coverage**: SQL-aware mutations conflicted with SQLite's robust design
-3. **Coverage ceiling at ~46%**: All strategies saturated around same point
-4. **Early rejection problem**: Domain-specific mutations trigger parser rejection before reaching target branches
-
-**Understanding Demonstrated:**
-
-- Empirical evaluation is essential; intuition about operator effectiveness is often wrong
-- Domain-specific mutations must align with (not conflict with) target architecture
-- Simple, targeted mutations outperform complex semantic transformations
-- Mutation-based fuzzing has inherent structural limitations
-
-**Practical Impact:**
-
-This analysis provides clear, data-driven guidance:
-
-- **Optimal strategy**: Character-level + interesting values only
-- **Resource efficiency**: Stop at ~4,000 inputs (saturation point)
-- **Next step**: Implement grammar-based fuzzing to break 46% ceiling
-
-**Final Insight:**
-
-The failure of sophisticated SQL-aware operators is itself a valuable finding. It demonstrates that fuzzer design requires careful consideration of target system architecture. Operators that seem "intelligent" (type confusion, constraint violation, structure mutation) can be counterproductive if they conflict with the target's error handling philosophy. Sometimes the simplest approach (boundary value injection) is the most effective.
-
-These findings demonstrate comprehensive understanding of mutation-based fuzzing techniques, their application to real-world software testing, and their fundamental limitations.
+**注意事项：**
+- 必须使用sqlite3-asan（带AddressSanitizer）
+- 使用空数据库文件（empty.db）
+- ARM64使用python3，Intel使用python3.10
+- 随机性可能导致发现时间有波动，但应在合理范围内（<10万次）
