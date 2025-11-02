@@ -247,7 +247,7 @@ fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
 
 **1. Sensing**
 
-The application integrates camera functionality for in-app photo capture, enabling users to take pictures directly within the application for reviews and profile customization. The camera implementation requests runtime permissions with user-friendly explanations, ensuring proper access control. When users initiate photo capture, the application creates temporary files using FileProvider for secure file access, handles camera intents with appropriate URI configurations, and manages the captured images through the activity result launcher pattern. The implementation supports both front and back camera selection with quality settings, demonstrating sophisticated sensor integration for mobile photo management.
+The application uses the camera to let users take photos directly in the app. Users can take pictures for reviews and profile photos. Before using the camera, the app asks for permission and explains why it's needed. When taking a photo, the app creates a temporary file to save the image, opens the phone's camera app, and saves the picture when done. This works for both front and back cameras.
 
 **Implementation:**
 ```java
@@ -269,11 +269,11 @@ private void openCamera() {
 
 **2. Localization**
 
-The application leverages Google Maps API with GPS integration to provide comprehensive location-based services. The implementation uses Android's Fused Location Provider, which intelligently combines GPS, Wi-Fi, and cellular network positioning for optimal accuracy. Users can view their current location, explore nearby restaurants on an interactive map, and navigate to restaurant locations. The map displays custom markers color-coded by crowd density status, with camera animations for smooth navigation. Location services include automatic permission handling, graceful degradation when permissions are denied, and real-time location updates through the FusedLocationProviderClient, demonstrating advanced mobile localization capabilities.
+The application uses Google Maps with GPS to show where restaurants are located. The app combines GPS, Wi-Fi, and mobile network signals to find the user's exact location. Users can see where they are on the map and where nearby restaurants are. Each restaurant appears as a colored pin on the map - green for not crowded, orange for moderately crowded, and red for very crowded. The map also lets users navigate to restaurants and updates their location in real-time as they move around.
 
 **3. Time-Weighted Crowd Density Algorithm**
 
-The application implements an intelligent time-weighted averaging algorithm for calculating real-time restaurant crowding status. The algorithm employs exponential decay weighting based on feedback recency, ensuring that recent user inputs have exponentially higher influence on the final crowd density calculation. User deduplication ensures only the latest feedback from each user within a 60-minute time window contributes to the result, preventing manipulation through multiple submissions. The weighted average is then mapped to discrete crowding levels (Not Crowded, Moderately Crowded, Very Crowded) through threshold-based classification, with a 15-minute cooldown period preventing spam submissions and maintaining data quality.
+The application calculates how crowded a restaurant is right now based on user feedback. The algorithm gives more weight to recent feedback than old feedback. For example, feedback from the last 15 minutes counts four times more than feedback from an hour ago. This way, the crowd status stays current and accurate. The app also prevents users from submitting multiple feedbacks too quickly by making them wait 15 minutes between submissions.
 
 **Implementation:**
 ```java
