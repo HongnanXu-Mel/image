@@ -243,6 +243,50 @@ fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
 });
 ```
 
+**Technical Depth**
+
+**1. Sensing**
+
+The application integrates camera functionality for in-app photo capture, enabling users to take pictures directly within the application for reviews and profile customization. The camera implementation requests runtime permissions with user-friendly explanations, ensuring proper access control. When users initiate photo capture, the application creates temporary files using FileProvider for secure file access, handles camera intents with appropriate URI configurations, and manages the captured images through the activity result launcher pattern. The implementation supports both front and back camera selection with quality settings, demonstrating sophisticated sensor integration for mobile photo management.
+
+**Implementation:**
+```java
+private void openCamera() {
+    File photoFile = new File(requireContext().getExternalFilesDir(null), 
+                               "review_photo_" + System.currentTimeMillis() + ".jpg");
+    
+    cameraImageUri = FileProvider.getUriForFile(
+        requireContext(),
+        requireContext().getPackageName() + ".provider",
+        photoFile
+    );
+    
+    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+    startActivityForResult(intent, TAKE_PHOTO_REQUEST);
+}
+```
+
+**2. Localization**
+
+The application leverages Google Maps API with GPS integration to provide comprehensive location-based services. The implementation uses Android's Fused Location Provider, which intelligently combines GPS, Wi-Fi, and cellular network positioning for optimal accuracy. Users can view their current location, explore nearby restaurants on an interactive map, and navigate to restaurant locations. The map displays custom markers color-coded by crowd density status, with camera animations for smooth navigation. Location services include automatic permission handling, graceful degradation when permissions are denied, and real-time location updates through the FusedLocationProviderClient, demonstrating advanced mobile localization capabilities.
+
+**3. Time-Weighted Crowd Density Algorithm**
+
+The application implements an intelligent time-weighted averaging algorithm for calculating real-time restaurant crowding status. The algorithm employs exponential decay weighting based on feedback recency, ensuring that recent user inputs have exponentially higher influence on the final crowd density calculation. User deduplication ensures only the latest feedback from each user within a 60-minute time window contributes to the result, preventing manipulation through multiple submissions. The weighted average is then mapped to discrete crowding levels (Not Crowded, Moderately Crowded, Very Crowded) through threshold-based classification, with a 15-minute cooldown period preventing spam submissions and maintaining data quality.
+
+**Implementation:**
+```java
+private double calculateTimeWeight(Timestamp feedbackTime) {
+    long timeDiffMinutes = (currentTime - feedbackTimeMillis) / (60 * 1000);
+    if (timeDiffMinutes <= 15) return 4.0;
+    else if (timeDiffMinutes <= 30) return 3.0;
+    else if (timeDiffMinutes <= 45) return 2.0;
+    else if (timeDiffMinutes <= 60) return 1.0;
+    else return 0.0;
+}
+```
+
 ### Summary
 
 The Palate application showcases significant technical depth through sophisticated algorithms with logarithmic scaling and time-weighted calculations, advanced localization using fused location providers with map integration, comprehensive privacy and security measures with authentication and permission management, efficient communication patterns with async operations and real-time synchronization, and excellence in mobile computing practices including sensor integration, background processing, and proper lifecycle management. These implementations demonstrate advanced mobile computing concepts extending well beyond basic CRUD operations, showcasing expertise in algorithmic design, location services, privacy engineering, and efficient communication patterns.
