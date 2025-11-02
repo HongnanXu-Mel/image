@@ -30,7 +30,7 @@ The Palate application extensively utilizes cloud services and internet-based da
 
 **Firebase Authentication**: User registration and login use Firebase Auth with secure email/password authentication. The system maintains authentication state continuously and validates users before allowing data access.
 
-**Firebase Firestore Database**: Firestore serves as the primary NoSQL database, storing structured collections for reviews, users, restaurants, crowdFeedback, and comments. The application performs complex queries with filtering and ordering operations like `whereEqualTo("userId", userId)` and `orderBy("createdAt", Query.Direction.DESCENDING)`. Real-time data synchronization ensures immediate visibility of crowd feedback and review postings across all devices. Document updates use Firestore's update operations to maintain data consistency.
+**Firebase Firestore Database**: Firestore serves as the primary NoSQL database, storing structured collections for reviews, users, restaurants, crowdFeedback, and comments. The application performs complex queries with filtering and ordering operations like `whereEqualTo("userId", userId)` and `orderBy("createdAt", Query.Direction.DESCENDING)`. Real-time data synchronization ensures immediate visibility of crowd feedback and review postings across all devices. The application uses Firestore's `.update()` operation instead of `.set()` to modify specific document fields while preserving existing data, preventing accidental overwrites and maintaining referential integrity across related collections.
 
 **Collections used:**
 * **reviews**: User restaurant reviews
@@ -51,10 +51,15 @@ db.collection("crowdFeedback")
     .whereEqualTo("restaurantId", restaurantId)
     .get()
     
-// Document updates
+// Document updates - maintains data consistency
+Map<String, Object> updates = new HashMap<>();
+updates.put("credibilityScore", credibilityScore);
+updates.put("experienceScore", experienceScore);
+updates.put("updatedAt", System.currentTimeMillis());
+
 db.collection("users")
     .document(userId)
-    .update(updates)
+    .update(updates) // Only updates specified fields
 ```
 
 **Supabase Storage Integration**: Cloud-based image storage handles user profile pictures and review images. The SupabaseStorageService class, implemented in Kotlin, manages secure file uploads and downloads using signed URLs with one-year expiration. Integration with Kotlin coroutines demonstrates the application's multi-language approach combining Java for business logic and Kotlin for specialized services.
