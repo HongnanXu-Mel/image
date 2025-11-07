@@ -1,16 +1,12 @@
-### 3. System Design and Key Decisions
+### Describe Our Current System Architecture and Design Choices
 
-- **How the system is set up**：The app is split into two parts. The React front end talks to the Spring Boot back end through `/api` calls, and the back end saves data in a MySQL database with help from MyBatis. We run Spring Boot and MySQL in Docker during development so everyone works in the same environment and we can move to the cloud later without much drama.
+Our setup keeps things simple: the React front end calls the Spring Boot back end through `/api`, and the back end stores data in MySQL with MyBatis. Spring Boot and MySQL both run in Docker during development so the team shares the same environment and can move to cloud hosting later with little change. On the back end we follow a straight-forward pattern—controllers handle the request, services run the logic, and DAOs talk to the database. Creating a project writes templates, groups, students, and rubric items inside one transaction so we do not end up with half-finished data. On the front end we use Umi + React + Ant Design, with MobX keeping user, subject, project, and comment data in sync. A global wrapper restores the login session from localStorage, shows a login modal when needed, and Axios adds the JWT token to each call.
 
-- **What happens on the back end**：We keep the code simple by following a basic pattern: controllers receive the request, services handle the main work, and DAOs run the database queries. When someone creates a project, we wrap every insert (project, groups, students, rubric items) inside one transaction so the database stays clean even if something fails halfway.
+### Justify the Critical Design Decisions
 
-- **Login and security decisions**：We use Spring Security with JWT tokens. Login and register are open, but everything else needs a valid token. Because we do not keep server sessions, the back end is ready for scaling out later, and classroom devices can swap users without carrying over old sessions.
+We picked Spring Boot, MyBatis, and MySQL because the team already knows them well, so we can build features faster and fix issues quickly. REST APIs give a clean bridge between the front end and back end and make it easy to add other clients later. JWT keeps requests stateless, which helps when we need to scale beyond one server or deal with shared classroom devices. On the front end, MobX is light to set up and matches our current flows better than heavier options, so we can keep the code base small while still sharing state across pages.
 
-- **What happens on the front end**：The front end runs on Umi + React + Ant Design. MobX stores keep user, subject, project, and comment data in sync across pages. A global wrapper restores login info from localStorage, shows a login modal if you are not signed in, and Axios adds the token to every call. If the token is no longer valid, we log the user out and refresh the page.
+### Areas for Improvement and Possible Future Adjustments
 
-- **Data layout**：The database already has tables for users, students, subjects, templates, rubric items, comments, projects, groups, and group members. We ship sample records through `init.sql`, which makes demos easy and gives us material to build on when the scoring module is ready.
-
-- **Why we picked these tools**：They match what the team already knows, so we deliver faster. REST APIs give us a clean bridge between front end and back end. JWT keeps requests stateless, which is handy for future load balancing. MobX is lightweight and covers our current workflow without a lot of setup.
-
-- **What we still need to improve**：We want finer control of permissions, smoother handling of expired tokens (without a full reload), better performance for big imports, and environment-specific settings for the front end. We also plan to finish the scoring and report modules and plug them into LMS tools when the base features are stable.
+We still need tighter role control and cleaner handling when tokens expire so the user does not lose their place. Big data imports should run faster, so we plan to look at batch inserts and better indexes. The front end should read its API base URL from the environment to support more than one deployment setup. Next term we also plan to finish the scoring and reporting modules, polish the PDF output, and look at connecting with the university LMS once the main flows feel stable.
 
