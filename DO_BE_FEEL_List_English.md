@@ -1,25 +1,16 @@
 ### 3. System Design and Key Decisions
 
-- **整体架构概览**：系统采用前后端分离的三层结构，React 前端通过 `/api` 前缀的 REST 接口访问 Spring Boot 后端，后端再由 MyBatis 持久化至 MySQL 数据库。Docker 用于编排后端与数据库容器，既保障团队在开发阶段的环境一致性，也为后续迁移至云端部署打下基础。此架构契合团队现有的全栈技术优势，能够在有限时间内快速交付迭代成果。
+- **How the system is set up**：The app is split into two parts. The React front end talks to the Spring Boot back end through `/api` calls, and the back end saves data in a MySQL database with help from MyBatis. We run Spring Boot and MySQL in Docker during development so everyone works in the same environment and we can move to the cloud later without much drama.
 
-- **后端设计与模块职责**：Spring Boot 服务遵循 Controller-Service-DAO 分层模式，Controller 层负责请求编排和入参校验，Service 承载业务逻辑，DAO 通过 MyBatis 映射实现数据库读写。项目管理模块示例：Controller 提供项目创建、删除、详情、群组及学生列表等端点；Service 端通过事务一次性写入模板、项目、考核标准、群组与学生关联，保证复杂写入场景下的数据一致性与原子性；统一的 `Result<T>` 响应对象封装状态码、消息、数据和时间戳，确保前后端通信格式一致并便于日志追踪。
+- **What happens on the back end**：We keep the code simple by following a basic pattern: controllers receive the request, services handle the main work, and DAOs run the database queries. When someone creates a project, we wrap every insert (project, groups, students, rubric items) inside one transaction so the database stays clean even if something fails halfway.
 
-- **认证与安全策略**：后端选用 Spring Security + JWT。通过自定义认证过滤器实现登录后签发令牌、请求阶段验证令牌，并关闭服务器端会话状态（`SessionCreationPolicy.STATELESS`），满足多角色无状态访问的需求。登录、注册接口放行，其余路由默认需认证，后续将进一步细化到基于注解的权限控制，覆盖课堂共享设备带来的安全风险。
+- **Login and security decisions**：We use Spring Security with JWT tokens. Login and register are open, but everything else needs a valid token. Because we do not keep server sessions, the back end is ready for scaling out later, and classroom devices can swap users without carrying over old sessions.
 
-- **前端架构与状态管理**：前端基于 Umi + React 18 + Ant Design，MobX 负责跨页面的全局状态（用户、学生、项目、评论库等）。应用根容器统一注入 `StoreProvider` 与 `AuthGuard`，支持本地存储中恢复登录态并对未登录用户展示认证弹窗。Axios 拦截器统一处理请求头、注入 JWT、捕获 401 错误并触发登出与界面刷新，使网络交互逻辑集中管理。
+- **What happens on the front end**：The front end runs on Umi + React + Ant Design. MobX stores keep user, subject, project, and comment data in sync across pages. A global wrapper restores login info from localStorage, shows a login modal if you are not signed in, and Axios adds the token to every call. If the token is no longer valid, we log the user out and refresh the page.
 
-- **数据模型与初始化**：数据库层覆盖用户、学生、学科、模板、考核项、评论库、项目、分组及组内学生关联等实体，既满足当前需求也为评分模块和历史报告扩展留出空间。`init.sql` 预置管理员、评阅人、学生样例数据与常用 rubric 项目，加快开发与演示节奏。
+- **Data layout**：The database already has tables for users, students, subjects, templates, rubric items, comments, projects, groups, and group members. We ship sample records through `init.sql`, which makes demos easy and gives us material to build on when the scoring module is ready.
 
-- **关键设计决策的理由**
-  - **技术栈**：Spring Boot + MyBatis + MySQL 与 React + Umi + Ant Design 构成团队最熟悉的组合，能够快速实现业务功能并维持良好的可维护性，同时具备在学校环境中落地的成熟度。
-  - **RESTful API**：前后端分离使模块边界清晰，后续可将评分模块、报告服务独立扩展或集成第三方 LMS。
-  - **JWT 鉴权**：支持多终端无状态访问，降低部署复杂度，并为未来的横向扩展（负载均衡、微服务化）提供保障。
-  - **MobX 状态管理**：比 Redux 更轻量，能迅速接管跨页面状态同步，对当前以表单和列表为主的交互场景十分高效。
+- **Why we picked these tools**：They match what the team already knows, so we deliver faster. REST APIs give us a clean bridge between front end and back end. JWT keeps requests stateless, which is handy for future load balancing. MobX is lightweight and covers our current workflow without a lot of setup.
 
-- **改进方向与未来调整**
-  - **权限精细化**：补充基于 `@PreAuthorize` 的角色/资源级控制、刷新令牌机制和操作审计，以满足课堂快速切换账号、共享设备等高风险场景。
-  - **前端可用性与健壮性**：优化 401 处理逻辑（替换全页刷新为路由跳转和状态保留），引入 TypeScript 提升组件复用和类型安全性。
-  - **性能与扩展性**：大规模数据导入场景需引入批量 SQL、索引优化和慢查询监控；评分模块上线后应关注并发写入的一致性，可评估使用异步队列或乐观锁。
-  - **配置与部署**：前端目前固定 `/api` 前缀，后续需配合环境变量实现多环境配置；Docker 已提供本地一键启动基础，可在下学期结合 CI/CD 构建自动化部署流水线，支持云端生产环境。
-  - **功能深化**：评分与结果生成、PDF 报告、角色权限等仍在计划中，后续可将当前架构扩展为支持实时评分同步、批量报告导出与 LMS 对接的服务组件。
+- **What we still need to improve**：We want finer control of permissions, smoother handling of expired tokens (without a full reload), better performance for big imports, and environment-specific settings for the front end. We also plan to finish the scoring and report modules and plug them into LMS tools when the base features are stable.
 
